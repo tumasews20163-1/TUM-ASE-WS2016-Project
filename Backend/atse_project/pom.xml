@@ -5,14 +5,14 @@
     <packaging>war</packaging>
     <version>1.0-SNAPSHOT</version>
 
-    <groupId>com.tum.atse.group_2</groupId>
-    <artifactId>project</artifactId>
+    <groupId>com.atse.group_2</groupId>
+    <artifactId>atse_project</artifactId>
 
     <properties>
         <app.id>atse-project-153119</app.id>
         <app.version>1</app.version>
         <appengine.version>1.9.48</appengine.version>
-        <gcloud.plugin.version>${gcloud.plugin.version}</gcloud.plugin.version>
+        <gcloud.plugin.version>138</gcloud.plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.source>1.7</maven.compiler.source>
@@ -27,6 +27,7 @@
 
     <dependencies>
         <!-- Compile/runtime dependencies -->
+		
         <dependency>
             <groupId>com.google.appengine</groupId>
             <artifactId>appengine-api-1.0-sdk</artifactId>
@@ -57,6 +58,24 @@
             <version>${appengine.version}</version>
             <scope>test</scope>
         </dependency>
+        
+        <!--Other dependencies-->
+
+        <dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>18.0</version>
+		</dependency>
+        <dependency>
+  			<groupId>com.googlecode.objectify</groupId>
+ 			<artifactId>objectify</artifactId>
+  			<version>5.1.5</version>
+		</dependency>
+		<dependency>
+    		<groupId>org.webjars</groupId>
+    		<artifactId>bootstrap</artifactId>
+    		<version>3.3.6</version>
+		</dependency>
     </dependencies>
 
     <build>
