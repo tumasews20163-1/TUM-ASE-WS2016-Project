@@ -30,13 +30,15 @@ public class API extends HttpServlet{
 		// - Marking attendance for user
 		// - Retrieving QR code
 		
+		response.setContentType("application/json");
+		String responseText = new String();
+		
 		// If request contains a valid username/password combination, return string to be converted into QR code
 		String username = request.getParameter("username");
 		String password = request.getParameter("password");
 		
 		if(username != null && password != null){
-			response.setContentType("application/json");
-			String responseText = new String();
+
 			// response.getWriter().println("<h1>~~~~Welcome to the POST page1.</h1>");
 			
 			// Try username/pw combination
@@ -48,26 +50,32 @@ public class API extends HttpServlet{
 						// User is a student - generate a QR code string	
 						person.newQR();
 						responseText = person.toJson();
+						
 					} else if(person.role == Person.Roles.TUTOR.getValue()){
 						// User is a tutor - try to mark attendance for the student
+						
 					} else {
 						// This is an undefined role
 						throw new UnsupportedOperationException(String.format("The role %i is not a defined role.", person.role));
 					}
+					
 				} else {
 					// Invalid password
-					System.out.println("Invalid password");
+					responseText = new APIError(1, "Invalid password").toJson();
 				}
+				
 			} else {
 				// Username not found
-				System.out.println("Username not found");
-			}
-			
-			response.getWriter().println(responseText);
-			response.getWriter().flush();
+				responseText = new APIError(0, "Username not found").toJson();
+			}			
+
 		} else {		
-			printRequest(request, response);
+			responseText = new APIError(2, "Incomplete credentials: Username or password missing").toJson();
+			// printRequest(request, response);
 		}
+		
+		response.getWriter().println(responseText);
+		response.getWriter().flush();
 	}
 	
 	private void printRequest(HttpServletRequest request, HttpServletResponse response) throws IOException{
