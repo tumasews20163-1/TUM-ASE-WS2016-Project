@@ -38,12 +38,6 @@ public class API extends HttpServlet{
 			response.setContentType("application/json");
 			String responseText = new String();
 			// response.getWriter().println("<h1>~~~~Welcome to the POST page1.</h1>");
-
-			Gson gson = new Gson();
-			//System.out.println("test");
-			// response.getWriter().println(json);
-			//writer.println("<h1>Welcome to the POST page2.</h1>");
-			//writer.flush();
 			
 			// Try username/pw combination
 			Person person = ObjectifyService.ofy().load().type(Person.class).id(username).now();		
@@ -51,7 +45,8 @@ public class API extends HttpServlet{
 			if(person != null){
 				if(person.password.equals(password)){
 					if(person.role == Person.Roles.STUDENT.getValue()){
-						// User is a student - generate a QR code string						
+						// User is a student - generate a QR code string	
+						person.newQR();
 						responseText = person.toJson();
 					} else if(person.role == Person.Roles.TUTOR.getValue()){
 						// User is a tutor - try to mark attendance for the student
@@ -69,6 +64,7 @@ public class API extends HttpServlet{
 			}
 			
 			response.getWriter().println(responseText);
+			response.getWriter().flush();
 		} else {		
 			printRequest(request, response);
 		}
