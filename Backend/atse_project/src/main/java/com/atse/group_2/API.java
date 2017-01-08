@@ -1,12 +1,14 @@
 package com.atse.group_2;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Enumeration;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.gson.Gson;
 import com.googlecode.objectify.ObjectifyService;
 
 public class API extends HttpServlet{
@@ -23,8 +25,7 @@ public class API extends HttpServlet{
 	}
 	
 	public void doPost(HttpServletRequest request, HttpServletResponse response) 
-		      throws IOException {
-		
+		      throws IOException {		
 		// Post can be for:
 		// - Marking attendance for user
 		// - Retrieving QR code
@@ -32,24 +33,31 @@ public class API extends HttpServlet{
 		// If request contains a valid username/password combination, return string to be converted into QR code
 		String username = request.getParameter("username");
 		String password = request.getParameter("password");
-
+		
 		if(username != null && password != null){
-			response.getWriter().println("<h1>Welcome to the POST page.</h1>");
+			response.setContentType("application/json");
+			String responseText = new String();
+			// response.getWriter().println("<h1>~~~~Welcome to the POST page1.</h1>");
+
+			Gson gson = new Gson();
+			//System.out.println("test");
+			// response.getWriter().println(json);
+			//writer.println("<h1>Welcome to the POST page2.</h1>");
+			//writer.flush();
 			
 			// Try username/pw combination
 			Person person = ObjectifyService.ofy().load().type(Person.class).id(username).now();		
-			if (person == null){
-				System.out.println("null");
-			}
+
 			if(person != null){
 				if(person.password.equals(password)){
 					if(person.role == Person.Roles.STUDENT.getValue()){
-						// User is a student - generate a QR code string
+						// User is a student - generate a QR code string						
+						responseText = person.toJson();
 					} else if(person.role == Person.Roles.TUTOR.getValue()){
 						// User is a tutor - try to mark attendance for the student
 					} else {
 						// This is an undefined role
-						throw new UnsupportedOperationException();
+						throw new UnsupportedOperationException(String.format("The role %i is not a defined role.", person.role));
 					}
 				} else {
 					// Invalid password
@@ -60,7 +68,7 @@ public class API extends HttpServlet{
 				System.out.println("Username not found");
 			}
 			
-			// Return QR string if valid
+			response.getWriter().println(responseText);
 		} else {		
 			printRequest(request, response);
 		}

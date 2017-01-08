@@ -2,6 +2,7 @@ package com.atse.group_2;
 
 import java.util.ArrayList;
 
+import com.google.gson.Gson;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 
@@ -19,12 +20,13 @@ public class Person {
 	
 	@Id
 	String username; // username of the person
-	String password; // password of the person
+	transient String password; // password of the person
 	String group; // id of the group
 	int role; // 0 is a student 1 is a tutor
 	boolean presentation; // true if the student presented
 	int[] presence; // assumption- 8 tutorials. Value 0 if the student was
 					// present and value 1 if he/she was not.
+	String currentQR;
 
 	public Person() {
 		
@@ -41,8 +43,23 @@ public class Person {
 			presence[i] = 0;
 		}
 		this.group= group;
+		this.newQR();
 	}
-
+	
+	public boolean verifyQR(String otherQR){
+		// Need to compare the 'other' QR code with mine and then create a new one
+		// - only if they match? or always?
+		return true;
+	}
+	
+	public void newQR(){
+		// Create a new QR string
+	}
+	
+	public String toJson(){
+		return new Gson().toJson(this);
+	}
+	
 	public String presenceToString() {
 		String result = null;
 		if (presence != null) {

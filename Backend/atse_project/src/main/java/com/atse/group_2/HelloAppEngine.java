@@ -57,6 +57,7 @@ public class HelloAppEngine extends HttpServlet {
 				ObjectifyService.ofy().save().entity(new Person("student1", "1111", 0,null)).now();
 				ObjectifyService.ofy().save().entity(new Person("student2", "1111", 0,null)).now();
 				ObjectifyService.ofy().save().entity(new Person("student3", "1111", 0,null)).now();
+				ObjectifyService.ofy().save().entity(new Person("MyTestUsername", "MyTestPassword123", 0,null)).now();
 			}
 
 			if (countGroups == 0) {

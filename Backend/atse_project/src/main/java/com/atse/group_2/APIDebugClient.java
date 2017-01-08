@@ -38,7 +38,7 @@ class APIDebugClient{
 	}
 	
 	public static void main(String[] args) throws IOException{		
-		doGet();
+		// doGet();
 		doPost();
 	}	
 	
