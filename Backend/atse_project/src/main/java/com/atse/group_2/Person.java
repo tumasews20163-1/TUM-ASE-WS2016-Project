@@ -6,8 +6,17 @@ import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 
 @Entity
-public class Person {
-
+public class Person {	
+	public enum Roles{
+		STUDENT (0),
+		TUTOR (1);
+		private final int i;
+		Roles(int i){
+			this.i = i;
+		}
+		public int getValue() { return i; }
+	}
+	
 	@Id
 	String username; // username of the person
 	String password; // password of the person
