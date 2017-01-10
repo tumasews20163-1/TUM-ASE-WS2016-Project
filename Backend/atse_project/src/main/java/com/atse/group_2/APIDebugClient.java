@@ -2,23 +2,15 @@ package com.atse.group_2;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.HttpClient.*;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
@@ -27,7 +19,7 @@ import org.apache.http.util.EntityUtils;
 class APIDebugClient{
 	// Common variables located here for convenience.
 	// Location of the server where requests should be sent
-	static String url = "http://localhost:8080/api";
+	static String url = "http://localhost:8080/api/tutor";	
 	
 	// Map containing parameters which will be passed in POST method
 	static Map<String, String> params;

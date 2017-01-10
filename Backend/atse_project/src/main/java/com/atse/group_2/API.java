@@ -1,46 +1,39 @@
 package com.atse.group_2;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.Enumeration;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.gson.Gson;
 import com.googlecode.objectify.ObjectifyService;
 
-public class API extends HttpServlet{
-	public void doGet(HttpServletRequest request, HttpServletResponse response) 
-		      throws IOException {
-		
-		// Get can be for:
-		// - Getting QR code for user
-		
 
-		
-		// If no params set in uri path or request parameters, display the whole request (debug)
-		printRequest(request, response);
-	}
+// Student
+// - QR + info
+
+// Tutor
+// - Send POST with QR string, session date/ID/string and boolean for presentation
+
+
+public class API extends HttpServlet{
 	
 	public void doPost(HttpServletRequest request, HttpServletResponse response) 
 		      throws IOException {		
 		// Post can be for:
-		// - Marking attendance for user
+		// - Marking attendance/presentation for user
 		// - Retrieving QR code
 		
 		response.setContentType("application/json");
 		String responseText = new String();
+		// response.getWriter().println(request.getPathInfo()); // Prints the url segment after the api
 		
 		// If request contains a valid username/password combination, return string to be converted into QR code
 		String username = request.getParameter("username");
 		String password = request.getParameter("password");
 		
-		if(username != null && password != null){
-
-			// response.getWriter().println("<h1>~~~~Welcome to the POST page1.</h1>");
-			
+		if(username != null && password != null){			
 			// Try username/pw combination
 			Person person = ObjectifyService.ofy().load().type(Person.class).id(username).now();		
 
@@ -48,11 +41,11 @@ public class API extends HttpServlet{
 				if(person.password.equals(password)){
 					if(person.role == Person.Roles.STUDENT.getValue()){
 						// User is a student - generate a QR code string	
-						person.newQR();
-						responseText = person.toJson();
+						responseText = handleStudentPostRequest(request, response, person);
 						
 					} else if(person.role == Person.Roles.TUTOR.getValue()){
 						// User is a tutor - try to mark attendance for the student
+						responseText = handleTutorPostRequest(request, response, person);
 						
 					} else {
 						// This is an undefined role
@@ -78,9 +71,28 @@ public class API extends HttpServlet{
 		response.getWriter().flush();
 	}
 	
+	private String handleStudentPostRequest(HttpServletRequest request, 
+			HttpServletResponse response, Person person){
+		person.newQR();
+		String responseText = person.toJson();
+		return responseText;
+	}
+	
+	private String handleTutorPostRequest(HttpServletRequest request, 
+			HttpServletResponse response, Person person){
+		return "";
+	}
+	
+	public void doGet(HttpServletRequest request, HttpServletResponse response) 
+		      throws IOException {		
+		// GET is not supported for any functionality. Display the whole request (debug)
+		printRequest(request, response);
+	}
+	
 	private void printRequest(HttpServletRequest request, HttpServletResponse response) throws IOException{
-		response.getWriter().println("<h1>Welcome to the API page.</h1>");
 		response.setContentType("text/html");
+		response.getWriter().println("<h1>Welcome to the API page.</h1>");
+		response.getWriter().println("<h2>GET requests are not supported. Please use POST.</h2>");
 		
 		response.getWriter().println(request.getMethod());
 		response.getWriter().println("<br/>");
@@ -112,5 +124,5 @@ public class API extends HttpServlet{
 		}
 		
 		response.getWriter().println(request.getMethod());
-	}
+	}	
 }

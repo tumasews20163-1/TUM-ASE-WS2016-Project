@@ -1,7 +1,7 @@
 package com.atse.group_2;
 
-import java.util.ArrayList;
-
+import java.math.BigInteger;
+import java.security.SecureRandom;
 import com.google.gson.Gson;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
@@ -27,6 +27,7 @@ public class Person {
 	int[] presence; // assumption- 8 tutorials. Value 0 if the student was
 					// present and value 1 if he/she was not.
 	String currentQR;
+	// SecureRandom myRandom;
 
 	public Person() {
 		
@@ -44,6 +45,7 @@ public class Person {
 		}
 		this.group= group;
 		this.newQR();
+		// this.myRandom = new SecureRandom();
 	}
 	
 	public boolean verifyQR(String otherQR){
@@ -54,6 +56,10 @@ public class Person {
 	
 	public void newQR(){
 		// Create a new QR string
+		// Ultimately, a unique string. Hash-based? Crypto-based?
+		// For now, just use the object data and some random int
+		this.currentQR = this.username + this.group + this.role; // + new BigInteger(130, myRandom).toString(32);
+		// This SecureRandom/BigInteger solution lifted from http://stackoverflow.com/questions/41107/how-to-generate-a-random-alpha-numeric-string
 	}
 	
 	public String toJson(){
