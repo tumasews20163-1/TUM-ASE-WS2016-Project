@@ -36,6 +36,32 @@
     <servlet-name>TutorView</servlet-name>
     <url-pattern>/tutorview</url-pattern>
   </servlet-mapping>
+    <servlet>
+    <servlet-name>API</servlet-name>
+    <servlet-class>com.atse.group_2.API</servlet-class>
+  </servlet>
+    <servlet-mapping>
+    <servlet-name>API</servlet-name>
+    <url-pattern>/api/*</url-pattern>
+  </servlet-mapping>
+  <!-- 
+  <servlet>
+    <servlet-name>API2</servlet-name>
+    <servlet-class>com.atse.group_2.APIHandler22222</servlet-class>
+  </servlet>
+  <servlet>
+  	<servlet-name>API</servlet-name>
+  	<servlet-class>org.restlet.ext.servlet.ServerServlet</servlet-class>
+    <init-param>
+    	<param-name>org.restlet.application</param-name>
+        <param-value>com.atse.group_2.APIHandler</param-value>
+    </init-param>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>API</servlet-name>
+    <url-pattern>/api/*</url-pattern>
+  </servlet-mapping> -->
+
   <welcome-file-list>
     <welcome-file>index.html</welcome-file>
   </welcome-file-list>
@@ -50,3 +76,4 @@
  </filter-mapping>
 
 </web-app>
+<!--      -->
