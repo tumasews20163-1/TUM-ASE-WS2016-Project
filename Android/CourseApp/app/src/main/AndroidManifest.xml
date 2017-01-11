@@ -19,12 +19,6 @@
         </activity>
         <activity android:name=".OverviewActivity" >
         </activity>
-        <activity android:name=".QRDisplayActivity" >
-        </activity>
-        <activity android:name=".TutorActivity" >
-        </activity>
-        <activity android:name=".TutorDetailsActivity" >
-        </activity>
     </application>
 
 </manifest>

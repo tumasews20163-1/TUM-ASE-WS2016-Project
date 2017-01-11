@@ -5,14 +5,9 @@ import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.Toast;
-
-import com.koushikdutta.async.future.FutureCallback;
-import com.koushikdutta.async.http.AsyncHttpPost;
-import com.koushikdutta.ion.Ion;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -22,19 +17,15 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
 
-    //Button login = (Button) findViewById(R.id.Login_button);
-
-    EditText password;
-    EditText username;
-
-    RadioButton studentRadio;
-    RadioButton tutorRadio;
+    EditText TFPassword;
+    EditText TFUsername;
 
     HttpURLConnection connection = null;
     BufferedReader reader = null;
@@ -44,123 +35,70 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        password = (EditText) findViewById(R.id.password);
-        username = (EditText) findViewById(R.id.username);
+        TFPassword = (EditText) findViewById(R.id.password);
+        TFUsername = (EditText) findViewById(R.id.username);
 
-        studentRadio = (RadioButton) findViewById(R.id.student_radio);
-        tutorRadio = (RadioButton) findViewById(R.id.tutor_radio);
     }
+
+
+    String entered_password = null;
+    String entered_username = null;
 
     public void login_click(View view) {
 
-        /*Ion.with(this).load("http://api.icndb.com/jokes/").asString().setCallback(new FutureCallback<String>() {
-            @Override
-            public void onCompleted(Exception e, String result) {
-                if(studentRadio.isChecked() || tutorRadio.isChecked()){
-                    checkPassword(result);
-                }else {
-                    Toast.makeText(MainActivity.this, "Please select to log in either as student or tutor", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });*/
-        new HandleReceivingConnection().execute();
+        entered_password = this.TFPassword.getText().toString();
+        entered_username = this.TFUsername.getText().toString();
+
+        if(entered_username.length() != 0 && entered_password.length() != 0){
+            new HandleReceivingConnection().execute();
+        }
+        else {
+            Toast.makeText(this, "Please enter your username and password to log in", Toast.LENGTH_SHORT).show();
+        }
+
     }
 
 
-
-    private void checkPassword(String result) {
-
-        String entered_password = password.getText().toString();
-        String entered_username = username.getText().toString();
+    private void login(String result) {
 
         try {
 
-            //Chuck norris REST API
-            JSONObject jsonObject = new JSONObject(result);
-            JSONArray elements = jsonObject.getJSONArray("value");
+            JSONObject jsonObject= new JSONObject(result);
+            String status = jsonObject.getString("status");
 
-            //JSON Placeholder REST API
-            //JSONArray elements = new JSONArray(result);
+            if(checkStatus(status) < 0)
+                return;
 
-            for (int i = 0; i < elements.length(); i++){
-                JSONObject item = elements.getJSONObject(i);
-                String json_username = item.getString("id");
-                String json_password = item.getString("joke");
+            JSONObject studentJSONObject = jsonObject.getJSONObject("value");
 
-                if(entered_username.equals(json_username) && entered_password.equals(json_password)){
-
-                    if(tutorRadio.isChecked()){
-                        processTutorData(result);
-                        break;
-                    }else if(studentRadio.isChecked()){
-                        processStudentData(json_username, json_password);
-                        break;
-                    }
-
-                }else{
-                    Toast.makeText(this, "Wrong password or username", Toast.LENGTH_SHORT).show();
-                    break;
-                }
-            }
+            processStudentData(studentJSONObject);
 
         } catch (JSONException e) {
             e.printStackTrace();
         }
     }
 
-    private void processStudentData(String username, String password) {
+    private int checkStatus(String status)
+    {
+        if(status != null && status.equals("ok"))
+        {
+            Toast.makeText(MainActivity.this, "Login successful",Toast.LENGTH_SHORT).show();
+            return 0;
+        }
+
+        Toast.makeText(this, "Wrong password or username", Toast.LENGTH_SHORT).show();
+        return -1;
+
+    }
+
+    private void processStudentData(JSONObject student) {
 
         Intent intent = new Intent(this, OverviewActivity.class);
-        intent.putExtra("username", username);
-        intent.putExtra("password", password);
+        intent.putExtra("student",student.toString());
         startActivity(intent);
 
     }
 
-        /*
-
-    { "type": "success",
-      "value": [
-                { "id": 1,
-                  "joke": "Chuck Norris uses ribbed condoms inside out, so he gets the pleasure.",
-                  "categories": ["explicit"]
-                  },
-
-                { "id": 2,
-                  "joke": "MacGyver can build an airplane out of gum and paper clips. Chuck Norris can kill him and take it.",
-                  "categories": []
-                 }
-                ]
-     }
-
-     */
-
-    private void processTutorData(String result) {
-
-        JSONObject jsonObject = null;
-        JSONArray sendWIthIntent = new JSONArray();
-        try {
-            jsonObject = new JSONObject(result);
-            JSONArray elements = jsonObject.getJSONArray("value");
-
-            for (int i = 0; i < 10; i++) {
-
-                JSONObject item = elements.getJSONObject(i);
-                sendWIthIntent.put(item);
-
-            }
-
-            Toast.makeText(this, "Check", Toast.LENGTH_SHORT).show();
-
-            Intent intent = new Intent(this, TutorActivity.class);
-            intent.putExtra("studentInfoJSON", sendWIthIntent.toString());
-            startActivity(intent);
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-    }
 
     public class HandleReceivingConnection extends AsyncTask<String, String, String>{
 
@@ -168,9 +106,18 @@ public class MainActivity extends AppCompatActivity {
         protected String doInBackground(String... params) {
 
             try {
-                URL url = new URL("http://api.icndb.com/jokes/");
+
+                String urlString= "http://atsesandbox.getsandbox.com/students?username=" + entered_username + "&password=" + entered_password;
+                URL url = new URL(urlString);
                 connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("GET");
+                connection.setRequestMethod("POST");
+                connection.setDoInput(true);
+                connection.setDoOutput(true);
+                connection.setUseCaches(false);
+                connection.setRequestProperty("Content-Type", "application/json");
+                connection.setRequestProperty("charset", "utf-8");
+
+
                 connection.connect();
 
                 InputStream stream = connection.getInputStream();
@@ -183,7 +130,9 @@ public class MainActivity extends AppCompatActivity {
                     buffer.append(line);
                 }
 
+
                 String result = buffer.toString();
+
                 return result;
 
 
@@ -191,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
-            } finally {
+            }  finally {
                 if(connection != null){
                     connection.disconnect();
                 }
@@ -211,11 +160,7 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
 
-            if(studentRadio.isChecked() || tutorRadio.isChecked()){
-                checkPassword(result);
-            }else {
-                Toast.makeText(MainActivity.this, "Please select to log in either as student or tutor", Toast.LENGTH_SHORT).show();
-            }
+            login(result);
         }
     }
 

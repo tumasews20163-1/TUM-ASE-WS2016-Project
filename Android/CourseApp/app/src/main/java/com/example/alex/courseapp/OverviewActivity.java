@@ -1,21 +1,30 @@
 package com.example.alex.courseapp;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
+
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.WriterException;
+import com.google.zxing.common.BitMatrix;
+import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.lang.reflect.Array;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -23,16 +32,16 @@ import java.net.URL;
 public class OverviewActivity extends AppCompatActivity {
 
     TextView matnrView;
-    TextView nameView;
+    TextView fullNameView;
     TextView exerciseGroup;
-
-    Spinner groups;
-    ArrayAdapter<CharSequence> adapter;
-    String[] group_names = {"1", "2", "3"};
-    String selected_group;
+    TextView usernameView;
 
     String matnrToDisplay;
-    String nameToDisplay;
+    String fullNameToDisplay;
+    String exerciseGroupToDisplay;
+    String usernameToDisplay;
+
+    ImageView qr_image;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,80 +49,48 @@ public class OverviewActivity extends AppCompatActivity {
         setContentView(R.layout.activity_overview);
 
         matnrView = (TextView) findViewById(R.id.mat_nr);
-        nameView = (TextView) findViewById(R.id.name);
+        fullNameView = (TextView) findViewById(R.id.fullname);
         exerciseGroup = (TextView) findViewById(R.id.exercise_group);
-
-        groups = (Spinner) findViewById(R.id.group_spinner);
+        usernameView = (TextView) findViewById(R.id.username);
+        qr_image = (ImageView) findViewById(R.id.qr_image);
 
         Intent intent = getIntent();
-        matnrToDisplay = intent.getStringExtra("username");
-        nameToDisplay = intent.getStringExtra("password");
-
-        matnrView.setText(matnrToDisplay);
-        nameView.setText(nameToDisplay);
-
-        adapter = new  ArrayAdapter(this, android.R.layout.simple_spinner_item, group_names);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        groups.setAdapter(adapter);
-        groups.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                selected_group = (String) parent.getItemAtPosition(position);
-                exerciseGroup.setText("You are requesting to attend group " + selected_group + ". Press Confirm to submit change");
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
+        setValuesOnUI(intent);
 
     }
 
-    public void qrcode_click(View view) {
-        Intent intent = new Intent(this, QRDisplayActivity.class);
-        intent.putExtra("toBeEncoded", nameToDisplay);
-        startActivity(intent);
-    }
-
-    public void confirm_click(View view) {
-        String myUrl = "";
-        JSONObject json = createPackageToSend();
-        try {
-            URL url = new URL(myUrl);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-
-            connection.setDoOutput(true);
-            connection.setUseCaches(false);
-            connection.setRequestMethod("POST");
-            connection.setRequestProperty("Content-Type", "application/json");
-            connection.setRequestProperty("charset", "utf-8");
-
-            DataOutputStream printout = new DataOutputStream(connection.getOutputStream());
-            printout.write(json.toString().getBytes("UTF8"));
-
-            printout.flush();
-            printout.close();
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-
-    }
-
-    private JSONObject createPackageToSend() {
-        JSONObject result = new JSONObject();
+    private void setValuesOnUI(Intent intent) {
 
         try {
-            result.put("matrikelnummer", matnrToDisplay);
-            result.put("name", nameToDisplay);
-            result.put("group", selected_group);
+            String student = intent.getStringExtra("student");
+            JSONObject studentJSON = new JSONObject(student);
+
+            matnrToDisplay = studentJSON.getString("matrikelnum");
+            fullNameToDisplay = studentJSON.getString("firstname") + " " + studentJSON.getString("lastname");
+            exerciseGroupToDisplay = studentJSON.getString("group");
+            usernameToDisplay = studentJSON.getString("username");
+
+            matnrView.setText(matnrToDisplay);
+            fullNameView.setText(fullNameToDisplay);
+            usernameView.setText(usernameToDisplay);
+            exerciseGroup.setText(exerciseGroupToDisplay);
+
+            String qrCodeString = studentJSON.getString("qrcode");
+
+            MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
+
+            BitMatrix bitMatrix = multiFormatWriter.encode(qrCodeString, BarcodeFormat.QR_CODE, 200, 200);
+            BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+            Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
+            qr_image.setImageBitmap(bitmap );
+
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
-        return result;
+        catch (WriterException e) {
+            e.printStackTrace();
+        }
     }
+
 }
