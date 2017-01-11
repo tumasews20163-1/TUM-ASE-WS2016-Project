@@ -13,6 +13,9 @@ class APIError{
 		MISSING_CREDENTIAL (2),
 		ROLE_MISMATCH (3),
 		UNDEFINED_ROLE (4),
+		WRONG_GROUP (5),
+		INVALID_QR (6),
+		MISSING_PARAMETER (7),
 		UNSPECIFIED_ERROR (666);
 		private final int i; 
 		Types(int i){

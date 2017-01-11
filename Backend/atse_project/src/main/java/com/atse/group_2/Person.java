@@ -25,23 +25,16 @@ public class Person {
 	ArrayList<String> oldQRs;
 	private String currentQR;
 	Map<String, Scores> attendance;
-	// SecureRandom myRandom;
 
 	public Person() {
 		
 	}
 
 	public Person(String username, String password, int role,String group) {
-		// TODO Auto-generated constructor stub
 		this.username = username;
 		this.password = password;
 		this.role = role;
-		this.group= group;
-		
-		// this.myRandom = new SecureRandom();
-		this.attendance = new HashMap<String, Scores>();
-		this.attendance.put("testSessionID", Scores.PARTICIPANT);
-		
+		this.group= group;		
 		this.presentation = false;
 		this.presence = new int[8];
 		for (int i = 0; i < presence.length; i++) {
@@ -49,6 +42,8 @@ public class Person {
 		}
 		
 		this.oldQRs = new ArrayList<String>();
+		this.attendance = new HashMap<String, Scores>();
+		this.markAttendance("dummy", false);
 		this.newQR();
 	}
 	
@@ -62,16 +57,23 @@ public class Person {
 		updateScore(sessionID, score);
 	}
 	
-	private void updateScore(String sessionID, Scores newScore){ // Integer newScore){ //Scores newScore){
-		Scores oldScore = attendance.get(sessionID);
-		
-		if (oldScore != null && oldScore.getValue() < newScore.getValue()){
-			// If the student already has an entry for a given session (attendance),
-			// update the score iff the old score is lower than the new one.
-			// (If student was already marked for participation, don't erase that score for the attendance)
-			attendance.put(sessionID, newScore);
+	private void updateScore(String sessionID, Scores newScore){
+		// Attendance is null unless filled with something in constructor. wtf?
+		if (this.attendance.containsKey(sessionID)){
+			Scores oldScore = this.attendance.get(sessionID);
+			if (oldScore != null){
+				if (oldScore.getValue() < newScore.getValue()){			
+					// If the student already has an entry for a given session (attendance),
+					// update the score iff the old score is lower than the new one.
+					// (If student was already marked for participation, don't erase that score for the attendance)
+					this.attendance.put(sessionID, newScore);
+					ObjectifyService.ofy().save().entity(this).now();
+				}
+			}
+		} else {
+			this.attendance.put(sessionID, newScore);
 			ObjectifyService.ofy().save().entity(this).now();
-		}		
+		}
 	}
 	
 	public boolean verifyQR(String otherQR){

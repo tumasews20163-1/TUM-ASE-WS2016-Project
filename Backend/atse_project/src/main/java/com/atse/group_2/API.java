@@ -92,20 +92,52 @@ public class API extends HttpServlet{
 			HttpServletResponse response, Person person){
 		// person in this context is the TUTOR, not the student
 		
+		// String responseText = String.format("%s : %s : %s - %s", challengeQR, studentUsername, student.username, match);
+		String responseText;
+		
+		// Get the Student who owns the QR code
 		String challengeQR = request.getParameter("QRString");
 		String studentUsername = challengeQR.split(":")[0];
-		System.out.println(challengeQR);
-		System.out.println(studentUsername);
 		Person student = ObjectifyService.ofy().load().type(Person.class).id(studentUsername).now();
 		
-		
-		String match = "No match.";
-		if(student.verifyQR(challengeQR)){
-			// QR matches, so mark student present/presented
-			 match = "Match!";
-			 System.out.println("matchmatch");
+		if (student != null) {
+			// Check that the Student is in the Tutor's group
+			// - If so, check the QR code
+			// - Otherwise, give an error		
+			System.out.println(String.format("Student Group: %s : Tutor Group: %s", student.group, person.group));
+			if (student.group.equals(person.group)){
+				// Check that the QRString matches the student's current QR
+				// - If so, update the student's attendance
+				// - Otherwise, give an error	
+				
+				if(student.verifyQR(challengeQR)){
+					// QR matches, so mark student present/presented
+					String sessionID = request.getParameter("SessionID");					
+					String participationString = request.getParameter("Participation");
+					
+					if (sessionID != null && participationString != null){
+						boolean participated = participationString.equalsIgnoreCase("true");
+						
+						student.markAttendance(sessionID, participated);
+						responseText = "Success";
+					} else {
+						responseText = new APIError(7, "SessionID or Participation parameter is not set.").toJson();
+					}		
+					
+				} else {
+					responseText = new APIError(6, "QR code does not match the student's current QR code.").toJson();
+				}
+				
+			} else {
+				responseText = new APIError(5, "Student is not assigned to the current tutor.").toJson();
+			}
+			
+		} else {
+			responseText = new APIError(0, "Student username was not found.").toJson();
 		}
-		String responseText = String.format("%s : %s : %s - %s", challengeQR, studentUsername, student.username, match);
+		
+
+		
 		return responseText;
 	}
 	

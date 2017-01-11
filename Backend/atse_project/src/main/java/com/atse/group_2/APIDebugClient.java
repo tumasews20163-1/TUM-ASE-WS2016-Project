@@ -36,6 +36,8 @@ class APIDebugClient{
 		 params2.put("username", "tutor1");
 		 params2.put("password", "1111");
 		 params2.put("QRString", "MyTestUsername:10_0");
+		 params2.put("SessionID", "MyTestSessionID123");
+		 params2.put("Participation", "true");
 	}
 	
 	public static void main(String[] args) throws IOException{		
