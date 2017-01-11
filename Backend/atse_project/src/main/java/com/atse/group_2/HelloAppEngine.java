@@ -46,8 +46,8 @@ public class HelloAppEngine extends HttpServlet {
 		try {
 			int countPeople = ObjectifyService.ofy().load().type(Person.class).count();
 			int countGroups = ObjectifyService.ofy().load().type(Group.class).count();
-			response.getWriter().println(countPeople);
-			response.getWriter().println(countGroups);
+			response.getWriter().println("Number of people in Objectify database:" + countPeople);
+			response.getWriter().println("Number of groups in Objectify database:" + countGroups);
 
 			if (countPeople == 0) {
 				ObjectifyService.ofy().save().entity(new Person("tutor1", "1111", 1,"1")).now();

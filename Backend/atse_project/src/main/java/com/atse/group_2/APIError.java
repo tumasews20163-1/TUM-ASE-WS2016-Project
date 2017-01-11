@@ -11,6 +11,8 @@ class APIError{
 		USERNAME_NOT_FOUND (0),
 		INVALID_PASSWORD (1),
 		MISSING_CREDENTIAL (2),
+		ROLE_MISMATCH (3),
+		UNDEFINED_ROLE (4),
 		UNSPECIFIED_ERROR (666);
 		private final int i; 
 		Types(int i){

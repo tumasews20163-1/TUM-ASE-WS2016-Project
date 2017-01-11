@@ -39,17 +39,27 @@ public class API extends HttpServlet{
 
 			if(person != null){
 				if(person.password.equals(password)){
-					if(person.role == Person.Roles.STUDENT.getValue()){
-						// User is a student - generate a QR code string	
-						responseText = handleStudentPostRequest(request, response, person);
+					if(request.getPathInfo().equals("/student")){
+						// User is requesting student api access
+						if(person.role == Person.Roles.STUDENT.getValue()){
+							// User is a student - generate a QR code string	
+							responseText = handleStudentPostRequest(request, response, person);							
+						} else {
+							responseText = new APIError(3, "Role mismatch. You must be a student to access the student API").toJson();
+						}
 						
-					} else if(person.role == Person.Roles.TUTOR.getValue()){
-						// User is a tutor - try to mark attendance for the student
-						responseText = handleTutorPostRequest(request, response, person);
+					} else if(request.getPathInfo().equals("/tutor")){
+						// User is requesting tutor api access
+						if(person.role == Person.Roles.TUTOR.getValue()){
+							// User is a tutor - try to mark attendance for the student
+							responseText = handleTutorPostRequest(request, response, person);							
+						} else {
+							responseText = new APIError(3, "Role mismatch. You must be a tutor to access the tutor API").toJson();
+						}
 						
 					} else {
-						// This is an undefined role
-						throw new UnsupportedOperationException(String.format("The role %i is not a defined role.", person.role));
+						// Unknown destination
+						responseText = new APIError(4, String.format("%s is an invalid API path.", request.getPathInfo())).toJson();
 					}
 					
 				} else {
@@ -80,7 +90,23 @@ public class API extends HttpServlet{
 	
 	private String handleTutorPostRequest(HttpServletRequest request, 
 			HttpServletResponse response, Person person){
-		return "";
+		// person in this context is the TUTOR, not the student
+		
+		String challengeQR = request.getParameter("QRString");
+		String studentUsername = challengeQR.split(":")[0];
+		System.out.println(challengeQR);
+		System.out.println(studentUsername);
+		Person student = ObjectifyService.ofy().load().type(Person.class).id(studentUsername).now();
+		
+		
+		String match = "No match.";
+		if(student.verifyQR(challengeQR)){
+			// QR matches, so mark student present/presented
+			 match = "Match!";
+			 System.out.println("matchmatch");
+		}
+		String responseText = String.format("%s : %s : %s - %s", challengeQR, studentUsername, student.username, match);
+		return responseText;
 	}
 	
 	public void doGet(HttpServletRequest request, HttpServletResponse response) 
