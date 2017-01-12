@@ -35,11 +35,13 @@ public class OverviewActivity extends AppCompatActivity {
     TextView fullNameView;
     TextView exerciseGroup;
     TextView usernameView;
+    TextView bonusView;
 
     String matnrToDisplay;
     String fullNameToDisplay;
     String exerciseGroupToDisplay;
     String usernameToDisplay;
+    int bonus;
 
     ImageView qr_image;
 
@@ -52,6 +54,7 @@ public class OverviewActivity extends AppCompatActivity {
         fullNameView = (TextView) findViewById(R.id.fullname);
         exerciseGroup = (TextView) findViewById(R.id.exercise_group);
         usernameView = (TextView) findViewById(R.id.username);
+        bonusView = (TextView) findViewById(R.id.bonus);
         qr_image = (ImageView) findViewById(R.id.qr_image);
 
         Intent intent = getIntent();
@@ -69,11 +72,19 @@ public class OverviewActivity extends AppCompatActivity {
             fullNameToDisplay = studentJSON.getString("firstname") + " " + studentJSON.getString("lastname");
             exerciseGroupToDisplay = studentJSON.getString("group");
             usernameToDisplay = studentJSON.getString("username");
+            bonus = studentJSON.getInt("bonus");
 
             matnrView.setText(matnrToDisplay);
             fullNameView.setText(fullNameToDisplay);
             usernameView.setText(usernameToDisplay);
             exerciseGroup.setText(exerciseGroupToDisplay);
+
+            if(bonus == 1)
+                bonusView.setText("Yes");
+            else if(bonus == 0)
+                bonusView.setText("No");
+            else
+                bonusView.setText("Error in database");
 
             String qrCodeString = studentJSON.getString("qrcode");
 
