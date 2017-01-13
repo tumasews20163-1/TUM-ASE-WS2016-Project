@@ -1,8 +1,18 @@
 package com.example.alex.courseapp;
 
+import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -28,8 +38,9 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 
-public class OverviewActivity extends AppCompatActivity {
+public class OverviewActivity extends Activity {
 
     TextView matnrView;
     TextView fullNameView;
@@ -47,6 +58,8 @@ public class OverviewActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Intent intent = getIntent();
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_overview);
 
@@ -56,8 +69,6 @@ public class OverviewActivity extends AppCompatActivity {
         usernameView = (TextView) findViewById(R.id.username);
         bonusView = (TextView) findViewById(R.id.bonus);
         qr_image = (ImageView) findViewById(R.id.qr_image);
-
-        Intent intent = getIntent();
         setValuesOnUI(intent);
 
     }
@@ -80,11 +91,17 @@ public class OverviewActivity extends AppCompatActivity {
             exerciseGroup.setText(exerciseGroupToDisplay);
 
             if(bonus == 1)
+            {
                 bonusView.setText("Yes");
+            }
             else if(bonus == 0)
+            {
                 bonusView.setText("No");
+            }
             else
+            {
                 bonusView.setText("Error in database");
+            }
 
             String qrCodeString = studentJSON.getString("qrcode");
 
@@ -95,6 +112,10 @@ public class OverviewActivity extends AppCompatActivity {
             Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
             qr_image.setImageBitmap(bitmap );
 
+                this.startService();
+                registerReceiver(broadcastReceiver, new IntentFilter(BroadcastService.BROADCAST_ACTION));
+
+
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -102,6 +123,62 @@ public class OverviewActivity extends AppCompatActivity {
         catch (WriterException e) {
             e.printStackTrace();
         }
+    }
+
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            updateUI(context, intent);
+        }
+    };
+
+    private void updateUI(Context context, Intent intent) {
+        try {
+
+            String val = intent.getStringExtra("values");
+            JSONObject obj = new JSONObject(val);
+            val = obj.getString("status");
+
+            if(val.equals("ok"))
+            {
+                bonusView.setText("Yes");
+                this.stopService();
+
+                NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this);
+                mBuilder.setSmallIcon(R.drawable.notification_1);
+                mBuilder.setContentTitle("Attendance Tracker");
+                mBuilder.setContentText("You achieved your bonus!");
+
+                //TODO After closing the app, and clicking on notification, the overview activity appear... maybe just bug in emulator?
+                Intent launchIntent = getIntent().addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                PendingIntent contentIntent = PendingIntent.getActivity(this, 0, launchIntent, 0);
+
+
+                mBuilder.setContentIntent(contentIntent);
+
+                //Add notification
+                NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+                mNotificationManager.notify(1, mBuilder.build());
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
+    public void startService() {
+        Intent t = new Intent(getBaseContext(), BroadcastService.class);
+        t.putExtra("username",usernameToDisplay);
+        startService(t);
+    }
+
+    // Method to stop the service
+    public void stopService() {
+        unregisterReceiver(broadcastReceiver);
+        stopService(new Intent(getBaseContext(), BroadcastService.class));
     }
 
 }

@@ -19,6 +19,8 @@
         </activity>
         <activity android:name=".OverviewActivity" >
         </activity>
+
+        <service android:name=".BroadcastService" />
     </application>
 
 </manifest>
