@@ -13,10 +13,10 @@ import com.googlecode.objectify.annotation.Id;
 public class Group {
 
 	@Id
-	String name; // String
-	String tutor; // username of the tutor responsible for the group
-	List<String> students; // usernames of the students in the group
-	Set<String> sessions; // List of session IDs for this group
+	String name; 			// String
+	String tutor; 			// username of the tutor responsible for the group
+	List<String> students; 	// usernames of the students in the group
+	Set<String> sessions; 	// List of session IDs for this group
 
 	public Group() {
 		if (this.students == null)
@@ -68,29 +68,4 @@ public class Group {
 
 		return qualifiedStudents;
 	}
-
-	
-	
-	public List<Person> old_calculateBonuses() {
-
-		List<Person> bonuses = new ArrayList();
-		for (int i = 0; i < students.size(); i++) {
-			Person person = ObjectifyService.ofy().load().type(Person.class).id(students.get(i)).now();
-
-			int[] presence = person.presence;
-			int countNotPresent = 0;
-			for (int j = 0; j < presence.length; j++) {
-				if (presence[j] == 0) {
-					countNotPresent++;
-				}
-			}
-			if (countNotPresent < 3 && person.presentation == true) {
-				bonuses.add(person);
-			}
-
-		}
-
-		return bonuses;
-	}
-
 }

@@ -20,7 +20,7 @@ public class Person {
 	String group; 				// id of the group
 	int role; 					// 0 is a student 1 is a tutor
 	boolean presentation; 		// true if the student presented
-	int[] presence; 			// assumption- 8 tutorials. Value 0 if the student was
+	//int[] presence; 			// assumption- 8 tutorials. Value 0 if the student was
 								// present and value 1 if he/she was not.
 	private String currentQR;
 	Map<String, Scores> attendance;
@@ -40,10 +40,10 @@ public class Person {
 		this.group= group;		
 		if (group != null && this.role != Roles.TUTOR.getValue()) { Group.addPersonToGroup(this.group, this.username); }
 		this.presentation = false;
-		this.presence = new int[8];
-		for (int i = 0; i < presence.length; i++) {
-			presence[i] = 0;
-		}
+		//this.presence = new int[8];
+		//for (int i = 0; i < presence.length; i++) {
+		//	presence[i] = 0;
+		//}
 		this.attendance = new HashMap<String, Scores>();
 		// this.markAttendance("dummy", false);
 		// this.randomString = newRandomString(); // For Crypto implementation. Not supported yet.
