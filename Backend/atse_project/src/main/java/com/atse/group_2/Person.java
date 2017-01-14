@@ -36,10 +36,10 @@ public class Person {
 		this.role = role;
 		this.group= group;		
 		this.presentation = false;
-		this.presence = new int[8];
-		for (int i = 0; i < presence.length; i++) {
-			presence[i] = 0;
-		}
+		//this.presence = new int[8];
+		//for (int i = 0; i < presence.length; i++) {
+		//	presence[i] = 0;
+		//}
 		
 		this.oldQRs = new ArrayList<String>();
 		this.attendance = new HashMap<String, Scores>();
@@ -80,12 +80,16 @@ public class Person {
 		return this.currentQR.equals(otherQR);
 	}
 	
+	public String currentQR(){
+		return this.currentQR;
+	}
+	
 	public void newQR(){
 		// Create a new QR string
 		// Ultimately, a unique string. Hash-based? Crypto-based?
 		// For now, just use the object data and some random int
 		int r = (int) (Math.random() * 10);
-		r = 0; // For debugging. QR always the same.
+		// r = 0; // For debugging. QR always the same.
 		
 		// Move QR to old QR list
 		// if(this.currentQR != null) { this.oldQRs.add(this.currentQR); }		
