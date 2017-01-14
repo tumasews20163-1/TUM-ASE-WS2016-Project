@@ -2,6 +2,8 @@ package com.atse.group_2;
 
 import java.io.IOException;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -19,6 +21,22 @@ import com.googlecode.objectify.ObjectifyService;
 
 public class API extends HttpServlet{
 	
+	public static enum Params{
+		USERNAME ("username"),
+		PASSWORD ("password"),
+		CHALLENGE_QR ("QRString"),
+		SESSION ("SessionID"),
+		PARTICIPATION_FLAG ("Participation"),
+		PARTICIPATION_TRUE ("true"),
+		STUDENT_URL_PATH ("/student"),
+		TUTOR_URL_PATH ("/tutor");
+		private final String value;
+		Params(String value){
+			this.value = value;
+		}
+		public String getValue() { return value; }
+	}
+	
 	public void doPost(HttpServletRequest request, HttpServletResponse response) 
 		      throws IOException {		
 		// Post can be for:
@@ -27,32 +45,36 @@ public class API extends HttpServlet{
 		
 		response.setContentType("application/json");
 		String responseText = new String();
-		// response.getWriter().println(request.getPathInfo()); // Prints the url segment after the api
 		
 		// If request contains a valid username/password combination, return string to be converted into QR code
-		String username = request.getParameter("username");
-		String password = request.getParameter("password");
+		String username = request.getParameter(Params.USERNAME.getValue());
+		String password = request.getParameter(Params.PASSWORD.getValue());
 		
 		if(username != null && password != null){			
 			// Try username/pw combination
 			Person person = ObjectifyService.ofy().load().type(Person.class).id(username).now();		
 
 			if(person != null){
+				
 				if(person.password.equals(password)){
-					if(request.getPathInfo().equals("/student")){
+					
+					if(request.getPathInfo().equals(Params.STUDENT_URL_PATH.getValue())){
+						
 						// User is requesting student api access
 						if(person.role == Person.Roles.STUDENT.getValue()){
 							// User is a student - generate a QR code string	
-							responseText = handleStudentPostRequest(request, response, person);							
+							responseText = handleStudentPostRequest(request, response, person);		
+							
 						} else {
 							responseText = new APIError(3, "Role mismatch. You must be a student to access the student API").toJson();
 						}
 						
-					} else if(request.getPathInfo().equals("/tutor")){
+					} else if(request.getPathInfo().equals(Params.TUTOR_URL_PATH.getValue())){
 						// User is requesting tutor api access
 						if(person.role == Person.Roles.TUTOR.getValue()){
 							// User is a tutor - try to mark attendance for the student
-							responseText = handleTutorPostRequest(request, response, person);							
+							responseText = handleTutorPostRequest(request, response, person);
+							
 						} else {
 							responseText = new APIError(3, "Role mismatch. You must be a tutor to access the tutor API").toJson();
 						}
@@ -92,51 +114,55 @@ public class API extends HttpServlet{
 			HttpServletResponse response, Person person){
 		// person in this context is the TUTOR, not the student
 		
-		// String responseText = String.format("%s : %s : %s - %s", challengeQR, studentUsername, student.username, match);
 		String responseText;
 		
 		// Get the Student who owns the QR code
-		String challengeQR = request.getParameter("QRString");
-		String studentUsername = challengeQR.split(":")[0];
-		Person student = ObjectifyService.ofy().load().type(Person.class).id(studentUsername).now();
+		String challengeQR 		= request.getParameter(Params.CHALLENGE_QR.getValue());
+		String studentUsername 	= challengeQR.split(":")[0];
+		Person student 			= ObjectifyService.ofy().load().type(Person.class).id(studentUsername).now();
 		
 		if (student != null) {
 			// Check that the Student is in the Tutor's group
 			// - If so, check the QR code
 			// - Otherwise, give an error		
-			System.out.println(String.format("Student Group: %s : Tutor Group: %s", student.group, person.group));
-			if (student.group.equals(person.group)){
-				// Check that the QRString matches the student's current QR
-				// - If so, update the student's attendance
-				// - Otherwise, give an error	
+			
+			if (student.group != null){
 				
-				if(student.verifyQR(challengeQR)){
-					// QR matches, so mark student present/presented
-					String sessionID = request.getParameter("SessionID");					
-					String participationString = request.getParameter("Participation");
+				if (student.group.equals(person.group)){
+					// Check that the QRString matches the student's current QR
+					// - If so, update the student's attendance
+					// - Otherwise, give an error	
 					
-					if (sessionID != null && participationString != null){
-						boolean participated = participationString.equalsIgnoreCase("true");
+					if(student.verifyQR(challengeQR)){
+						// QR matches, so mark student present/presented
+						String sessionID 			= request.getParameter(Params.SESSION.getValue());					
+						String participationString 	= request.getParameter(Params.PARTICIPATION_FLAG.getValue());
 						
-						student.markAttendance(sessionID, participated);
-						responseText = "Success";
+						if (sessionID != null && participationString != null){
+							boolean participated = participationString.equalsIgnoreCase(Params.PARTICIPATION_TRUE.getValue());
+							
+							student.markAttendance(sessionID, participated);
+							responseText = new APISuccess(1, "Success").toJson();
+							
+						} else {
+							responseText = new APIError(7, "SessionID or Participation parameter is not set.").toJson();
+						}		
+						
 					} else {
-						responseText = new APIError(7, "SessionID or Participation parameter is not set.").toJson();
-					}		
+						responseText = new APIError(6, "QR code does not match the student's current QR code.").toJson();
+					}
 					
 				} else {
-					responseText = new APIError(6, "QR code does not match the student's current QR code.").toJson();
+					responseText = new APIError(5, "Student is not assigned to the current tutor.").toJson();
 				}
 				
 			} else {
-				responseText = new APIError(5, "Student is not assigned to the current tutor.").toJson();
+				responseText = new APIError(8, "Student is not registered for a tutorial group.").toJson();
 			}
 			
 		} else {
 			responseText = new APIError(0, "Student username was not found.").toJson();
 		}
-		
-
 		
 		return responseText;
 	}

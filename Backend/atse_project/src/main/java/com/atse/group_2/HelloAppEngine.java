@@ -49,22 +49,25 @@ public class HelloAppEngine extends HttpServlet {
 			response.getWriter().println("Number of people in Objectify database:" + countPeople);
 			response.getWriter().println("Number of groups in Objectify database:" + countGroups);
 
-			if (countPeople == 0) {
-				ObjectifyService.ofy().save().entity(new Person("tutor1", "1111", 1,"1")).now();
-				ObjectifyService.ofy().save().entity(new Person("tutor2", "1111", 1,"2")).now();
-				ObjectifyService.ofy().save().entity(new Person("tutor3", "1111", 1,"3")).now();
-
-				ObjectifyService.ofy().save().entity(new Person("student1", "1111", 0,null)).now();
-				ObjectifyService.ofy().save().entity(new Person("student2", "1111", 0,null)).now();
-				ObjectifyService.ofy().save().entity(new Person("student3", "1111", 0,null)).now();
-				ObjectifyService.ofy().save().entity(new Person("MyTestUsername", "MyTestPassword123", 0,null)).now();
-			}
-
 			if (countGroups == 0) {
 				ObjectifyService.ofy().save().entity(new Group("1", "tutor1")).now();
 				ObjectifyService.ofy().save().entity(new Group("2", "tutor2")).now();
 				ObjectifyService.ofy().save().entity(new Group("3", "tutor3")).now();
 			}
+			
+			if (countPeople == 0) {
+				ObjectifyService.ofy().save().entity(new Person("tutor1", "1111", 1,"1")).now();
+				ObjectifyService.ofy().save().entity(new Person("tutor2", "1111", 1,"2")).now();
+				ObjectifyService.ofy().save().entity(new Person("tutor3", "1111", 1,"3")).now();
+
+				// Set the last param to null to clear group associations
+				ObjectifyService.ofy().save().entity(new Person("student1", "1111", 0, "1")).now();
+				ObjectifyService.ofy().save().entity(new Person("student2", "1111", 0, "1")).now();
+				ObjectifyService.ofy().save().entity(new Person("student3", "1111", 0, "2")).now();
+				ObjectifyService.ofy().save().entity(new Person("MyTestUsername", "MyTestPassword123", 0, "3")).now();
+			}
+
+
 
 			List<Person> people = ObjectifyService.ofy().load().type(Person.class).list();
 			Iterator<Person> it1 = people.iterator();

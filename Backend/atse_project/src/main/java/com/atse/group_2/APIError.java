@@ -16,6 +16,7 @@ class APIError{
 		WRONG_GROUP (5),
 		INVALID_QR (6),
 		MISSING_PARAMETER (7),
+		MISSING_INFORMATION (8),
 		UNSPECIFIED_ERROR (666);
 		private final int i; 
 		Types(int i){
