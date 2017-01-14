@@ -175,21 +175,4 @@ public class Person {
 		// Need to add username:
 		// return Crypto.getEncryptedString(this.toJson(), this.randomString);
 	}
-	
-	
-	
-	
-	// Will be removed
-	public String presenceToString() {
-		String result = null;
-		if (presence != null) {
-			result = "{" + presence[0];
-			for (int i = 0; i < presence.length; i++) {
-				result = result + ":" + presence[i];
-			}
-			result += "}";
-
-		}
-		return result;
-	}
 }
