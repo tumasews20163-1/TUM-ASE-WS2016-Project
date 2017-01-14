@@ -1,50 +1,31 @@
 package com.atse.group_2;
 
-import java.io.Console;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.http.ParseException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 
 
-class APIDebugClient{
-	// Common variables located here for convenience.
-	// Location of the server where requests should be sent
-	static String url = "http://localhost:8080/api/student";
+class APIDebugClient{	
+	// Remote url strings
+	// static String url  = "http://utility-node-147216.appspot.com//api/student";
+	// static String url2 = "http://utility-node-147216.appspot.com//api/tutor";
+	
+	// Local url strings
+	static String url  = "http://localhost:8080/api/student";
 	static String url2 = "http://localhost:8080/api/tutor";
-	
-	// Map containing parameters which will be passed in POST method
-	static Map<String, String> params;
-	static {
-		 params = new HashMap<String,String>();
-		 params.put("username", "MyTestUsername");
-		 params.put("password", "MyTestPassword123");
-	}
-	
-	static Map<String, String> params2;
-	static {
-		 params2 = new HashMap<String,String>();
-		 params2.put("username", "tutor1");
-		 params2.put("password", "1111");
-		 params2.put("QRString", "MyTestUsername:10_0");
-		 params2.put("SessionID", "MyTestSessionID123");
-		 params2.put("Participation", "true");
-	}
+
 	
 	public static void main(String[] args) throws IOException{		               
 		String studentUsername = "student1";
@@ -52,6 +33,7 @@ class APIDebugClient{
 		
 		String tutorUsername = "tutor1";
 		String tutorPassword = "1111";
+		
 		String QRString1;
 		String QRString2;
 		
@@ -86,6 +68,7 @@ class APIDebugClient{
 
 	}	
 	
+	// Sends a request as a student to get a QR code and the student's information
 	private static String sendStudentRequest(String username, String password) throws IOException{
 		Map<String, String> params;
 		{
@@ -99,6 +82,7 @@ class APIDebugClient{
 		return html;
 	}
 	
+	// Sends a request as a tutor user to mark a student present
 	private static String sendTutorRequest(String username, String password, String QRString, String SessionID, String participation) throws IOException{
 		Map<String, String> params;
 		{
@@ -115,6 +99,8 @@ class APIDebugClient{
 		return html;
 	}
 	
+	// Sends an HTTP POST request to a server and returns a string containing the html of the response.
+	// If needed, you can get the rest of the response from the response variable at the end of this method.
 	private static String sendRequest(Map<String, String> params, String url) throws IOException{
 		
 		// Create HttpClient pointing to the url of the server
@@ -145,6 +131,27 @@ class APIDebugClient{
 	
 	// Old post methods for debugging. Probably better to just use the new ones above ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	// =======================================================================================================================================
+	/*
+	 * 
+	 * 	
+	/*
+	// Map containing parameters which will be passed in POST method
+	static Map<String, String> params;
+	static {
+		 params = new HashMap<String,String>();
+		 params.put("username", "MyTestUsername");
+		 params.put("password", "MyTestPassword123");
+	}
+	
+	static Map<String, String> params2;
+	static {
+		 params2 = new HashMap<String,String>();
+		 params2.put("username", "tutor1");
+		 params2.put("password", "1111");
+		 params2.put("QRString", "MyTestUsername:10_0");
+		 params2.put("SessionID", "MyTestSessionID123");
+		 params2.put("Participation", "true");
+	}
 	
 	private static void doPost() throws IOException{
 		// Create HttpClient pointing to the url of the server
@@ -227,6 +234,8 @@ class APIDebugClient{
 		response.close();
 	}
 	
+	// GET isn't used for anything, but if you want to use it anyway, you'll have to add the import statement:
+	// import org.apache.http.client.methods.HttpGet;	
 	private static void doGet() throws IOException{
 		HttpClient client = HttpClients.createDefault();
 		HttpGet get = new HttpGet(url);
@@ -237,5 +246,5 @@ class APIDebugClient{
 		String html = EntityUtils.toString(response.getEntity());
 		System.out.println(html);
 		response.close();
-	}
+	}*/
 }

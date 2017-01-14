@@ -13,43 +13,44 @@ import com.googlecode.objectify.annotation.Id;
 public class Group {
 
 	@Id
-	String name; // String
-	String tutor; // username of the tutor responsible for the group
-	List<String> students; // usernames of the students in the group
-	Set<String> sessions; // List of session IDs for this group
+	String name; 			// Name of the Group
+	String tutor; 			// Username of the tutor responsible for the group
+	Set<String> students; 	// Usernames of the students in the group
+	Set<String> sessions; 	// List of session IDs for this group
 
 	public Group() {
 		if (this.students == null)
-			students = new ArrayList<String>();
+			students = new HashSet<String>();
 	}
 
 	public Group(String name, String tutor) {
 		this.name 		= name;
 		this.tutor 		= tutor;
-		this.students 	= new ArrayList<String>();
+		this.students 	= new HashSet<String>();
 		this.sessions 	= new HashSet<String>();
 	}
 	
-	public static void addPersonToGroup(String group, String username){
-		ObjectifyService.ofy().load().type(Group.class).id(group).now().addStudent(username);
-	}
-	
-	public static void addNewSessionToGroup(String group, String sessionID){
-		ObjectifyService.ofy().load().type(Group.class).id(group).now().addGroupSession(sessionID);
-	}
-	
+
+	// Adds a student username to the list of students in this Group. 
+	// If the student is already in the Group, no change is made.
 	public void addStudent(String username){
-		if (this.students == null) { this.students = new ArrayList<String>(); }
+		if (this.students == null) { this.students = new HashSet<String>(); }
+		
 		this.students.add(username);
 		ObjectifyService.ofy().save().entity(this).now();
 	}
 	
-	public void addGroupSession(String sessionID){
+	
+	// Adds a new session to the Group. If the session already exists, no change is made.
+	public void addGroupSession(String sessionID){		
 		if(this.sessions == null) { this.sessions = new HashSet<String>(); }
+		
 		this.sessions.add(sessionID);
 		ObjectifyService.ofy().save().entity(this).now();
 	}
 	
+	
+	// Returns a list of students eligible for a bonus
 	public List<Person> calculateBonuses(){
 		List<Person> qualifiedStudents = new ArrayList<Person>();
 		
@@ -68,29 +69,18 @@ public class Group {
 
 		return qualifiedStudents;
 	}
-
 	
 	
-	public List<Person> old_calculateBonuses() {
-
-		List<Person> bonuses = new ArrayList();
-		for (int i = 0; i < students.size(); i++) {
-			Person person = ObjectifyService.ofy().load().type(Person.class).id(students.get(i)).now();
-
-			int[] presence = person.presence;
-			int countNotPresent = 0;
-			for (int j = 0; j < presence.length; j++) {
-				if (presence[j] == 0) {
-					countNotPresent++;
-				}
-			}
-			if (countNotPresent < 3 && person.presentation == true) {
-				bonuses.add(person);
-			}
-
-		}
-
-		return bonuses;
+	// Static methods
+	// ============================================================================================
+	
+	// Adds a user to the list of group participants for a given group
+	public static void addPersonToGroup(String group, String username){
+		ObjectifyService.ofy().load().type(Group.class).id(group).now().addStudent(username);
 	}
-
+	
+	// Adds a session to the list of sessions for a given group.
+	public static void addNewSessionToGroup(String group, String sessionID){
+		ObjectifyService.ofy().load().type(Group.class).id(group).now().addGroupSession(sessionID);
+	}
 }
