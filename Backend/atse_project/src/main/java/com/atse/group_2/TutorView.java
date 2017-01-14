@@ -32,47 +32,54 @@ public class TutorView extends HttpServlet {
 		      String username = (String)request.getSession().getAttribute("username");
 		      Person tutor = ObjectifyService.ofy().load().type(Person.class).id(username).now();
 		      
+		      // This implementation gets everybody in the database and compares their groups and roles manually. 
+		      // Should be rewritten to be more efficient. Example:
+		      // List<Car> cars = ofy().load().type(Car.class).filter("year >", 1999).list()
 		      List<Person> students = ObjectifyService.ofy().load().type(Person.class).list();
 		      Iterator<Person> it = students.iterator();
 		      
 		      while(it.hasNext())
-		      {
-		    	  
+		      {		    	  
 		      	Person student = it.next();
-		      	if(student.group.equals(tutor.group) && student.role == 0)
-		      	response.getWriter().println("<tr><td>"+student.group
-		      	+"</td><td>"+student.username+"</td><td>"+student.presenceToString()+"</td><td>"+student.presentation+"</td></tr>");
-		      }
+		      	
+		      	if(student.group.equals(tutor.group) && student.role == Person.Roles.STUDENT.getValue()) {
+			      	Group g = ObjectifyService.ofy().load().type(Group.class).id(tutor.group).now();
+		      		response.getWriter().println(
+			      			"<tr><td>" 
+			      			+ student.group 
+		      				+ "</td><td>" 
+			      			+ student.username
+			      			+ "</td><td>" 
+			      			//+ student.presenceToString() 
+			      			+ (student.attendance == null ? 0 : student.attendance.size()) 
+			      			+ " out of " + (g.sessions == null ? 0 : g.sessions.size()) + " sessions"
+			      			+ "</td><td>" 
+			      			+ (student.attendance == null ? "false" : student.attendance.containsValue(Person.Scores.PARTICIPANT)) 
+			      			+ "</td></tr>");
+		      	}
+		      }     
 		      
-
-	      
 	      response.getWriter().println("</tbody></table><button style=\"margin-right: 5px;\"type=\"submit\" class=\"btn btn-primary\">Calculate bonuses</button>"
-	      		+ "<a href=\"login\" class=\"btn btn-primary\">Log out</a></form></body>");
-		
-	}
-	public void doPost(HttpServletRequest request, HttpServletResponse response) 
-		      throws IOException {
-		
-		
-		
-		String message = "There are no eligible students for bonus.";
-		String username = (String)request.getSession().getAttribute("username");
-	      Person tutor = ObjectifyService.ofy().load().type(Person.class).id(username).now();
-	      Group group = ObjectifyService.ofy().load().type(Group.class).id(tutor.group).now();
-	      List<Person> bonuses = group.calculateBonuses();
-	      if(bonuses.size() >0)
-	      {
-	    	  message = "The students eligible for bonuses are: "+bonuses.get(0);
-	    	  for(int i = 1;i<bonuses.size();i++)
-	    	  {
-	    		  message +=", "+ bonuses.get(i).username;
-	    	  }
-	      }
-	      HttpSession session = request.getSession();
-	      session.setAttribute("bonusMessage", message);
-			response.sendRedirect("/tutorview");
-		
+	      		+ "<a href=\"login\" class=\"btn btn-primary\">Log out</a></form></body>");		
 	}
 	
-
+	public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {		
+		String message 			= "There are no students eligible for the bonus.";
+		String username 		= (String)request.getSession().getAttribute("username");
+	    Person tutor 			= ObjectifyService.ofy().load().type(Person.class).id(username).now();
+	    Group group 			= ObjectifyService.ofy().load().type(Group.class).id(tutor.group).now();
+	    List<Person> bonuses 	= group.calculateBonuses();
+	    
+	    if(!bonuses.isEmpty()){
+	    	message = "The students eligible for bonuses are: ";
+	    	for(Person student : bonuses){
+	    		message += student.username + ", ";
+	    	}
+	    	message = message.substring(0, message.length()-2);
+	    }
+	    
+	    HttpSession session = request.getSession();
+	    session.setAttribute("bonusMessage", message);
+		response.sendRedirect("/tutorview");		
+	}
 }

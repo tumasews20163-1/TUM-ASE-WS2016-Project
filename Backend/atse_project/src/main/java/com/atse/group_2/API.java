@@ -114,7 +114,6 @@ public class API extends HttpServlet{
 			HttpServletResponse response, Person person){
 		// person in this context is the TUTOR, not the student
 		
-		// String responseText = String.format("%s : %s : %s - %s", challengeQR, studentUsername, student.username, match);
 		String responseText;
 		
 		// Get the Student who owns the QR code

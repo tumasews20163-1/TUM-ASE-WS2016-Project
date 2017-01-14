@@ -1,5 +1,6 @@
 package com.atse.group_2;
 
+import java.io.Console;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -45,8 +46,7 @@ class APIDebugClient{
 		 params2.put("Participation", "true");
 	}
 	
-	public static void main(String[] args) throws IOException{		
-		
+	public static void main(String[] args) throws IOException{		               
 		String studentUsername = "student1";
 		String studentPassword = "1111";
 		
@@ -77,7 +77,7 @@ class APIDebugClient{
 		System.out.println(response);
 		
 		// Mark the student participating at a different session
-		response = sendTutorRequest(tutorUsername, tutorPassword, QRString2, SessionID1, "true");
+		response = sendTutorRequest(tutorUsername, tutorPassword, QRString2, SessionID2, "true");
 		System.out.println(response);
 		
 		// Get the student again
