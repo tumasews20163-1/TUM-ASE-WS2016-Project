@@ -2,9 +2,6 @@ package com.atse.group_2;
 
 import java.io.IOException;
 import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -30,6 +27,7 @@ public class API extends HttpServlet{
 		PARTICIPATION_TRUE ("true"),
 		STUDENT_URL_PATH ("/student"),
 		TUTOR_URL_PATH ("/tutor");
+		
 		private final String value;
 		Params(String value){
 			this.value = value;
@@ -37,14 +35,13 @@ public class API extends HttpServlet{
 		public String getValue() { return value; }
 	}
 	
-	public void doPost(HttpServletRequest request, HttpServletResponse response) 
-		      throws IOException {		
+	public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {		
 		// Post can be for:
 		// - Marking attendance/presentation for user
 		// - Retrieving QR code
 		
 		response.setContentType("application/json");
-		String responseText = new String();
+		String responseText = new APIError(666, "An unknown error occurred handling the request.").toJson();
 		
 		// If request contains a valid username/password combination, return string to be converted into QR code
 		String username = request.getParameter(Params.USERNAME.getValue());
@@ -103,15 +100,16 @@ public class API extends HttpServlet{
 		response.getWriter().flush();
 	}
 	
-	private String handleStudentPostRequest(HttpServletRequest request, 
-			HttpServletResponse response, Person person){
+	// Responds to POST requests for student data. 
+	// Refreshes the student's QR code and replies to the request.
+	private String handleStudentPostRequest(HttpServletRequest request, HttpServletResponse response, Person person){
 		person.newQR();
 		String responseText = person.toJson();
 		return responseText;
 	}
 	
-	private String handleTutorPostRequest(HttpServletRequest request, 
-			HttpServletResponse response, Person person){
+	// Responds to POST request for tutors.
+	private String handleTutorPostRequest(HttpServletRequest request, HttpServletResponse response, Person person){
 		// person in this context is the TUTOR, not the student
 		
 		String responseText;
@@ -167,12 +165,14 @@ public class API extends HttpServlet{
 		return responseText;
 	}
 	
-	public void doGet(HttpServletRequest request, HttpServletResponse response) 
-		      throws IOException {		
+	// Handles incoming GET requests (there shouldn't be any)
+	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {		
 		// GET is not supported for any functionality. Display the whole request (debug)
 		printRequest(request, response);
 	}
 	
+	// Prints the HTTP Request fields and content to the Response output
+	@SuppressWarnings("unchecked")
 	private void printRequest(HttpServletRequest request, HttpServletResponse response) throws IOException{
 		response.setContentType("text/html");
 		response.getWriter().println("<h1>Welcome to the API page.</h1>");

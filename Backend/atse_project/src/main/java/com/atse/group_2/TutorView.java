@@ -11,6 +11,8 @@ import javax.servlet.http.HttpSession;
 
 import com.googlecode.objectify.ObjectifyService;
 
+// This should really be converted to use a JSP
+
 public class TutorView extends HttpServlet {
 
 	public void doGet(HttpServletRequest request, HttpServletResponse response) 
@@ -50,7 +52,6 @@ public class TutorView extends HttpServlet {
 		      				+ "</td><td>" 
 			      			+ student.username
 			      			+ "</td><td>" 
-			      			//+ student.presenceToString() 
 			      			+ (student.attendance == null ? 0 : student.attendance.size()) 
 			      			+ " out of " + (g.sessions == null ? 0 : g.sessions.size()) + " sessions"
 			      			+ "</td><td>" 
@@ -75,7 +76,7 @@ public class TutorView extends HttpServlet {
 	    	for(Person student : bonuses){
 	    		message += student.username + ", ";
 	    	}
-	    	message = message.substring(0, message.length()-2);
+	    	message = message.substring(0, message.length()-2);	// Trim trailing comma and space
 	    }
 	    
 	    HttpSession session = request.getSession();

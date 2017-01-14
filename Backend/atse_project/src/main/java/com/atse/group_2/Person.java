@@ -19,9 +19,6 @@ public class Person {
 	transient String password; 	// password of the person
 	String group; 				// id of the group
 	int role; 					// 0 is a student 1 is a tutor
-	boolean presentation; 		// true if the student presented
-	//int[] presence; 			// assumption- 8 tutorials. Value 0 if the student was
-								// present and value 1 if he/she was not.
 	private String currentQR;
 	Map<String, Scores> attendance;
 	// String randomString; 		// For Crypto implementation. Not supported yet.
@@ -39,26 +36,19 @@ public class Person {
 		this.role = role;
 		this.group= group;		
 		if (group != null && this.role != Roles.TUTOR.getValue()) { Group.addPersonToGroup(this.group, this.username); }
-		this.presentation = false;
-		//this.presence = new int[8];
-		//for (int i = 0; i < presence.length; i++) {
-		//	presence[i] = 0;
-		//}
 		this.attendance = new HashMap<String, Scores>();
-		// this.markAttendance("dummy", false);
+		
 		// this.randomString = newRandomString(); // For Crypto implementation. Not supported yet.
 		// this.oldQRs = new ArrayList<String>(); // See note in newQR()
+		
 		this.newQR();
 	}
 	
 	
+	// Marks the current Person as being present at a given session.
+	// Optionally, marks the current Person has having participated in the session.
 	public void markAttendance(String sessionID, boolean participated){
-		Scores score;
-		if (participated){
-			score = Scores.PARTICIPANT;
-		} else {
-			score = Scores.PRESENT;
-		}
+		Scores score = participated ? Scores.PARTICIPANT : Scores.PRESENT;
 		
 		Group.addNewSessionToGroup(this.group, sessionID);
 		
@@ -66,11 +56,13 @@ public class Person {
 	}	
 	
 	
+	// Returns true if the provided QR code matches this Person's current QR code
 	public boolean verifyQR(String otherQR){
 		return this.currentQR.equals(otherQR);
 	}
 	
 	
+	// Returns the current QR code as a string
 	public String currentQR(){
 		return this.currentQR;
 	}
@@ -106,6 +98,7 @@ public class Person {
 	public enum Roles{
 		STUDENT (0),
 		TUTOR (1);
+		
 		private final int i;
 		Roles(int i){
 			this.i = i;
@@ -118,6 +111,7 @@ public class Person {
 		ABSENT (0),
 		PRESENT (1),
 		PARTICIPANT (2);
+		
 		private final int i;
 		Scores(int i){
 			this.i = i;
@@ -129,21 +123,17 @@ public class Person {
 	// Private ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	// ============================================================================================
 	
+	// Enters a score for a student for a given session
 	private void updateScore(String sessionID, Scores newScore){
 		if (this.attendance == null) { this.attendance = new HashMap<String, Scores>(); }
 		
-		if (this.attendance.containsKey(sessionID)){
-			Scores oldScore = this.attendance.get(sessionID);
-			if (oldScore != null){
-				if (oldScore.getValue() < newScore.getValue()){			
-					// If the student already has an entry for a given session (attendance),
-					// update the score iff the old score is lower than the new one.
-					// (If student was already marked for participation, don't erase that score for the attendance)					
-					this.attendance.put(sessionID, newScore);
-					ObjectifyService.ofy().save().entity(this).now();
-				}
-			}
-		} else {
+		if (!this.attendance.containsKey(sessionID) 
+				|| (this.attendance.get(sessionID) != null 
+				&& this.attendance.get(sessionID).getValue() < newScore.getValue())){
+			// If the student does NOT have a score for this session, add the new score.
+			// If the student already has an entry for a given session,
+			// update the score iff the old score is lower than the new one.
+			// (If student was already marked for attendance+participation, don't erase that score for just attendance)					
 			this.attendance.put(sessionID, newScore);
 			ObjectifyService.ofy().save().entity(this).now();
 		}
