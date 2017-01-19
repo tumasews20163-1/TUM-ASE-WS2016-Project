@@ -8,6 +8,14 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -18,6 +26,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -27,6 +37,13 @@ public class MainActivity extends AppCompatActivity {
     HttpURLConnection connection = null;
     BufferedReader reader = null;
 
+    //added
+    private RequestQueue requestQueue;
+    private StringRequest request;
+
+    //added
+    static String url  = "http://localhost:8080/api/student";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,6 +51,9 @@ public class MainActivity extends AppCompatActivity {
 
         TFPassword = (EditText) findViewById(R.id.password);
         TFUsername = (EditText) findViewById(R.id.username);
+
+        //added
+        requestQueue = Volley.newRequestQueue(this);
 
     }
 
@@ -47,6 +67,37 @@ public class MainActivity extends AppCompatActivity {
         entered_username = this.TFUsername.getText().toString();
 
         if(entered_username.length() != 0 && entered_password.length() != 0){
+
+            //added
+            request = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+
+                    //Response from Server could be also handled here rather than in HandleReceivingConnection()
+
+                    //login(response);
+
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+
+                }
+            }){
+               @Override
+               protected Map<String, String> getParams() throws AuthFailureError{
+                   //parameters to be sent to server (username, password)
+                   HashMap<String, String> hashMap = new HashMap<String, String>();
+                   hashMap.put("username", entered_username);
+                   hashMap.put("password", entered_password);
+
+                   return hashMap;
+               }
+            };
+
+            //added
+            requestQueue.add(request);
+
             new HandleReceivingConnection().execute();
         }
         else {

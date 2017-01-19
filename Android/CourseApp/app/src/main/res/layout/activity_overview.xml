@@ -187,12 +187,12 @@
     </ScrollView>
 
     <ImageButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/imageButton"
-        android:src="@drawable/ic_stat_name"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="42dp" />
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:id="@+id/imageButton"
+         android:src="@drawable/ic_stat_name"
+         android:layout_centerHorizontal="true"
+         android:layout_marginTop="42dp" />
 
 
-</LinearLayout>
+ </LinearLayout>
