@@ -61,9 +61,9 @@ public class HelloAppEngine extends HttpServlet {
 				ObjectifyService.ofy().save().entity(new Person("tutor3", "1111", 1,"3")).now();
 
 				// Set the last param to null to clear group associations
-				ObjectifyService.ofy().save().entity(new Person("student1", "1111", 0, "1")).now();
-				ObjectifyService.ofy().save().entity(new Person("student2", "1111", 0, "1")).now();
-				ObjectifyService.ofy().save().entity(new Person("student3", "1111", 0, "2")).now();
+				ObjectifyService.ofy().save().entity(new Person("student1", "1111", "Student1", "LastName1", 0, "1")).now();
+				ObjectifyService.ofy().save().entity(new Person("student2", "1111", "Student2", "LastName2",0, "1")).now();
+				ObjectifyService.ofy().save().entity(new Person("student3", "1111", "Student3", "LastName3",0, "2")).now();
 				ObjectifyService.ofy().save().entity(new Person("MyTestUsername", "MyTestPassword123", 0, "3")).now();
 			}
 

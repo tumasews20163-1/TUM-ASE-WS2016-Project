@@ -12,6 +12,7 @@
     <servlet-name>HelloAppEngine</servlet-name>
     <url-pattern>/hello</url-pattern>
   </servlet-mapping>
+  
   <servlet>
     <servlet-name>Login</servlet-name>
     <servlet-class>com.atse.group_2.Login</servlet-class>
@@ -20,6 +21,16 @@
     <servlet-name>Login</servlet-name>
     <url-pattern>/login</url-pattern>
   </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>SignUp</servlet-name>
+    <servlet-class>com.atse.group_2.SignUp</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>SignUp</servlet-name>
+    <url-pattern>/signup</url-pattern>
+  </servlet-mapping>
+
   <servlet>
     <servlet-name>StudentSelectGroup</servlet-name>
     <servlet-class>com.atse.group_2.StudentSelectGroup</servlet-class>
@@ -28,6 +39,7 @@
     <servlet-name>StudentSelectGroup</servlet-name>
     <url-pattern>/studentselectgroup</url-pattern>
   </servlet-mapping>
+  
   <servlet>
     <servlet-name>TutorView</servlet-name>
     <servlet-class>com.atse.group_2.TutorView</servlet-class>
@@ -36,6 +48,7 @@
     <servlet-name>TutorView</servlet-name>
     <url-pattern>/tutorview/*</url-pattern>
   </servlet-mapping>
+  
     <servlet>
     <servlet-name>API</servlet-name>
     <servlet-class>com.atse.group_2.API</servlet-class>
