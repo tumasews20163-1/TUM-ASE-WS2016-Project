@@ -62,6 +62,7 @@ public class Group {
 					 this.sessions.size() - student.attendance.size() <= 2){
 				
 				if (student.attendance.containsValue(Person.Scores.PARTICIPANT)){
+					// Award the bonus if the student has missed 2 or fewer sessions AND has participated					
 					qualifiedStudents.add(student);
 				}
 			}
@@ -70,6 +71,19 @@ public class Group {
 		return qualifiedStudents;
 	}
 	
+	
+	// Sends bonus notifications to eligible students
+	public void sendBonusNotifications(){
+		List<Person> eligibleStudents = calculateBonuses();
+
+		for (Person student : eligibleStudents){
+			// Mark the student has having earned the bonus.
+			student.awardBonus();
+		}
+		
+		// Could send email or push notification?
+		
+	}
 	
 	// Static methods
 	// ============================================================================================

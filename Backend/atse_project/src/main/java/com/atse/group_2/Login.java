@@ -1,8 +1,6 @@
 package com.atse.group_2;
 
 import java.io.IOException;
-import java.util.Enumeration;
-
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -31,6 +29,15 @@ public class Login extends HttpServlet {
 			HttpSession session = request.getSession();
 			session.setAttribute("errorMessage", null);
 		}
+		
+	    String successMessage = (String) request.getSession().getAttribute("successMessage");
+		
+	    if (successMessage != null) {
+	    	response.getWriter().println("<div class=\"alert alert-success\">" + successMessage + "</div>");
+			HttpSession session = request.getSession();
+			session.setAttribute("successMessage", null);
+		}
+		
 		response.getWriter()
 				.println("<form class=\"form-inline\" action=\"login\" method=\"POST\">"
 						+ "     <div class=\"form-group\"><label for=\"username\">Username:</label><input id=\"username\" type=\"text\" name=\"username\"></div>"

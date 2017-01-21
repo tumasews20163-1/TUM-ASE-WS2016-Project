@@ -15,12 +15,18 @@ public class Person {
 	private static final boolean USE_CRYPTO = false;
 	
 	@Id
-	String username; 			// username of the person
-	transient String password; 	// password of the person
-	String group; 				// id of the group
-	int role; 					// 0 is a student 1 is a tutor
-	private String currentQR;
-	Map<String, Scores> attendance;
+	String username; 				// username of the person
+	transient String password; 		// password of the person
+	
+	String firstName;
+	String lastName;
+	
+	String group; 					// id of the group
+	int role; 						// 0 is a student 1 is a tutor
+	private String currentQR;		// String representing the current QR code for the student
+	Map<String, Scores> attendance;	// Attendance list: SessionID --> Score
+	boolean hasEarnedbonus;			// True if the student has qualified for the bonus
+	
 	// String randomString; 		// For Crypto implementation. Not supported yet.
 	// ArrayList<String> oldQRs;	// See note in newQR()
 
@@ -29,14 +35,17 @@ public class Person {
 		
 	}
 
-	
-	public Person(String username, String password, int role, String group) {
+	public Person(String username, String password, String firstName, String lastName, int role, String group){
 		this.username = username;
 		this.password = password;
+		this.firstName = firstName;
+		this.lastName = lastName;
 		this.role = role;
-		this.group= group;		
+		this.group= group;	
+		
+		this.hasEarnedbonus = false;
 		if (group != null && this.role != Roles.TUTOR.getValue()) { Group.addPersonToGroup(this.group, this.username); }
-		this.attendance = new HashMap<String, Scores>();
+		this.attendance = new HashMap<String, Scores>();		
 		
 		// this.randomString = newRandomString(); // For Crypto implementation. Not supported yet.
 		// this.oldQRs = new ArrayList<String>(); // See note in newQR()
@@ -44,6 +53,16 @@ public class Person {
 		this.newQR();
 	}
 	
+	public Person(String username, String password, int role, String group) {
+		this(username, password, "", "", role, group);
+	}
+	
+	
+	// Marks a student as having earned the bonus
+	public void awardBonus(){
+		this.hasEarnedbonus = true;
+		this.save();
+	}
 	
 	// Marks the current Person as being present at a given session.
 	// Optionally, marks the current Person has having participated in the session.
@@ -84,6 +103,10 @@ public class Person {
 		
 		this.currentQR = newQR;
 				
+		this.save();
+	}
+	
+	public void save(){
 		ObjectifyService.ofy().save().entity(this).now();
 	}
 	
@@ -135,7 +158,8 @@ public class Person {
 			// update the score iff the old score is lower than the new one.
 			// (If student was already marked for attendance+participation, don't erase that score for just attendance)					
 			this.attendance.put(sessionID, newScore);
-			ObjectifyService.ofy().save().entity(this).now();
+
+			this.save();
 		}
 	}
 	

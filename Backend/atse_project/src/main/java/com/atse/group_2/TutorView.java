@@ -114,6 +114,11 @@ public class TutorView extends HttpServlet {
 	private void handleNotifications(HttpServletRequest request, HttpServletResponse response) throws IOException{
 		String message 			= "Bonus notifications have been sent.";
 		
+		String username 		= (String)request.getSession().getAttribute("username");
+	    Person tutor 			= ObjectifyService.ofy().load().type(Person.class).id(username).now();
+	    Group group 			= ObjectifyService.ofy().load().type(Group.class).id(tutor.group).now();
+	    group.sendBonusNotifications();
+		
 		// Hmm.... how to actually send notifications? Email? Push to android?
 		// For Backend: https://firebase.google.com/docs/cloud-messaging/ and https://firebase.google.com/docs/cloud-messaging/send-message  formerly https://developers.google.com/cloud-messaging/http
 		// For Android clients: https://developers.google.com/cloud-messaging/android/client
