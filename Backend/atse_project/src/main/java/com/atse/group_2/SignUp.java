@@ -11,7 +11,60 @@ import com.googlecode.objectify.ObjectifyService;
 
 public class SignUp extends HttpServlet {
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		response.sendRedirect("/signup.jsp");
+		// response.sendRedirect("/signup.jsp");
+		
+		HttpSession session = request.getSession();	
+		String failureMessage = (String) session.getAttribute("failureMessage");			
+		
+		if (failureMessage != null) {			
+			failureMessage = "<div class=\"alert alert-danger\">" + failureMessage + "</div>";			
+			session.setAttribute("failureMessage", null);
+			
+		} else {
+			failureMessage = ""; // Simply don't print the alert if there is no error
+		}
+		
+		// This kills me to do but App Engine doesn't play nicely with JSPs + Servlets...
+		String pageContent = 
+				"<html>" +
+					"<head>" +
+						"<style type=\"text/css\">" +
+						"label {" +
+						"width: 6em;" +
+						"}" +
+						"</style>" +			
+						"<link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/css/bootstrap.min.css\" " +
+						"integrity=\"sha384-AysaV+vQoT3kOAXZkl02PThvDr8HYKPZhNT5h/CXfBThSRXQ6jW5DO2ekP5ViFdi\" crossorigin=\"anonymous\">" +								
+					"</head>" +
+					"<body>" +
+						failureMessage +
+						"<h1>Create a new account:</h1>" +						
+						"<form class=\"form-inline\" action=\"signup\" method=\"POST\">" +
+						"<div class=\"form-group\">" +
+							"<label for=\"username\">Username:</label><input id=\"username\"" +
+								"name=\"username\" type=\"text\">" +
+						"</div>" +
+						"<br>" +
+						"<div class=\"form-group\">" +
+							"<label for=\"firstname\">First Name:</label><input id=\"firstname\"" +
+								"name=\"firstname\" type=\"text\">" +
+						"</div>" +
+						"<br>" +
+						"<div class=\"form-group\">" +
+							"<label for=\"lastname\">Last Name:</label><input id=\"lastname\"" +
+								"name=\"lastname\" type=\"text\">" +
+						"</div>" +
+						"<br>" +
+						"<div class=\"form-group\">" +
+							"<label for=\"password\">Password:</label><input id=\"password\"" +
+								"name=\"password\" type=\"password\">" +
+						"</div>" +
+						"<button type=\"submit\" class=\"btn btn-primary\">Sign Up</button>" +
+						"</form>" +
+					"</body>" +
+				"</html>";	
+		
+		response.getWriter().println(pageContent);
 	}
 	
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -27,7 +80,7 @@ public class SignUp extends HttpServlet {
 			session.setAttribute("failureMessage", "Please complete all required fields.");
 
 			// Redirect to signup page
-			response.sendRedirect("/signup.jsp");
+			response.sendRedirect("/signup");
 		
 		} else {
 			if (!usernameExists(username)){
@@ -46,7 +99,7 @@ public class SignUp extends HttpServlet {
 			    session.setAttribute("failureMessage", "Oops! That username already exists. Please try again.");
 				
 				// Redirect to signup page
-				response.sendRedirect("/signup.jsp");
+				response.sendRedirect("/signup");
 			}	
 		}	
 	}
