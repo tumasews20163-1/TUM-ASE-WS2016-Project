@@ -48,7 +48,7 @@ public class StudentSelectGroup extends HttpServlet {
 		public void doPost(HttpServletRequest request, HttpServletResponse response) 
 			      throws IOException {
 			  response.setContentType("text/html");
-		String username = (String) request.getSession().getAttribute("username");
+			  String username = (String) request.getSession().getAttribute("username");
 			  String newGroupName = request.getParameter("groupSelection");
 			  
 			  Person person = ObjectifyService.ofy().load().type(Person.class).id(username).now();
