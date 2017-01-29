@@ -38,9 +38,9 @@ public class TutorView extends HttpServlet {
 			HttpSession session = request.getSession();
 			session.setAttribute("notificationMessage", null);
 	    }
-			
+	    
 	    response.getWriter().println("<form action=\"tutorview\" method=\"POST\"><table class=\"table\"><thead class=\"thead\">"+
-	    		"<tr><th>Group</th><th>Student</th><th>Presence</th><th>Presentation</th></tr></thead><tbody>");
+	    		"<tr><th>Group</th><th>Student Name</th><th>Presence</th><th>Presentation</th></tr></thead><tbody>");
 	      
 		      
 		String username = (String)request.getSession().getAttribute("username");
@@ -61,7 +61,7 @@ public class TutorView extends HttpServlet {
 			      			"<tr><td>" 
 			      			+ student.group 
 		      				+ "</td><td>" 
-			      			+ student.username
+			      			+ student.firstName + " " + student.lastName
 			      			+ "</td><td>" 
 			      			+ (student.attendance == null ? 0 : student.attendance.size()) 
 			      			+ " out of " + (g.sessions == null ? 0 : g.sessions.size()) + " sessions"
@@ -72,7 +72,6 @@ public class TutorView extends HttpServlet {
 		}     
 		      
 	    response.getWriter().println("</tbody></table><button style=\"margin-right: 5px;\"type=\"submit\" class=\"btn btn-primary\">Calculate Bonuses</button>"
-	      	 // + "<a href=\"tutorview/send\" style=\"margin-right: 5px;\" class=\"btn btn-primary\">Send Bonus Notifications</a>"
 	    		+ "<button style=\"margin-right: 5px;\"type=\"submit\" formaction=/tutorview/send class=\"btn btn-primary\">Send Bonus Notifications</button>"
 	    	+ "<a href=\"login\" class=\"btn btn-primary\">Log Out</a></form></body>");	
 	}
