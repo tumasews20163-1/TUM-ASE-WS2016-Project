@@ -9,6 +9,9 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.widget.Toast;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.StringRequest;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,12 +28,19 @@ public class BroadcastService extends Service {
     BufferedReader reader;
     HttpURLConnection connection;
 
+    private RequestQueue requestQueue;
+    private StringRequest request;
+
+    //added
+    static String url  = "http://utility-node-147216.appspot.com/api/student";
+
+
     public static final String BROADCAST_ACTION = "BROADCAST";
     public Context context = this;
     public Handler handler = new Handler();
     public Runnable runnable = new Runnable() {
         public void run() {
-            Toast.makeText(context, "Service is still running", Toast.LENGTH_LONG).show();
+            //Toast.makeText(context, "Service is still running", Toast.LENGTH_LONG).show();
 
             new HandleReceivingConnection().execute();
             handler.postDelayed(this, 10000); //10s
@@ -51,7 +61,7 @@ public class BroadcastService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId)
     {
         this.intent = intent;
-        Toast.makeText(this, "Service Started", Toast.LENGTH_LONG).show();
+        //Toast.makeText(this, "Service Started", Toast.LENGTH_LONG).show();
         intentService = new Intent(BROADCAST_ACTION);
 
         handler.removeCallbacks(runnable);
@@ -67,7 +77,7 @@ public class BroadcastService extends Service {
     public void onDestroy() {
         handler.removeCallbacks(runnable);
         super.onDestroy();
-        Toast.makeText(this, "Service Destroyed", Toast.LENGTH_LONG).show();
+        //Toast.makeText(this, "Service Destroyed", Toast.LENGTH_LONG).show();
     }
 
 
@@ -77,9 +87,8 @@ public class BroadcastService extends Service {
         protected String doInBackground(String... params) {
 
             try {
-                //We can't send just username, we have to send something more so it can identify the user, to make sure it is that user
-                //for security reasons
-                String urlString= "http://atsesandbox.getsandbox.com/bonus?username=" + intent.getStringExtra("username");
+
+                String urlString= url;
                 URL url = new URL(urlString);
                 connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("POST");
@@ -89,7 +98,8 @@ public class BroadcastService extends Service {
                 connection.setRequestProperty("Content-Type", "application/json");
                 connection.setRequestProperty("charset", "utf-8");
 
-
+                connection.setRequestProperty("username",BroadcastService.this.intent.getStringExtra("username"));
+                connection.setRequestProperty("password", BroadcastService.this.intent.getStringExtra("password"));
                 connection.connect();
 
                 InputStream stream = connection.getInputStream();

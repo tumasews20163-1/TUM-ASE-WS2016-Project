@@ -23,6 +23,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -34,15 +35,12 @@ public class MainActivity extends AppCompatActivity {
     EditText TFPassword;
     EditText TFUsername;
 
-    HttpURLConnection connection = null;
-    BufferedReader reader = null;
-
     //added
     private RequestQueue requestQueue;
     private StringRequest request;
 
     //added
-    static String url  = "http://localhost:8080/api/student";
+    static String url  = "http://utility-node-147216.appspot.com/api/student";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +73,8 @@ public class MainActivity extends AppCompatActivity {
 
                     //Response from Server could be also handled here rather than in HandleReceivingConnection()
 
-                    //login(response);
+                   login(response);
+
 
                 }
             }, new Response.ErrorListener() {
@@ -84,21 +83,22 @@ public class MainActivity extends AppCompatActivity {
 
                 }
             }){
-               @Override
-               protected Map<String, String> getParams() throws AuthFailureError{
-                   //parameters to be sent to server (username, password)
-                   HashMap<String, String> hashMap = new HashMap<String, String>();
-                   hashMap.put("username", entered_username);
-                   hashMap.put("password", entered_password);
 
-                   return hashMap;
+               @Override
+               public Map<String, String> getHeaders() throws AuthFailureError {
+                   //parameters to be sent to server (username, password)
+                   Map<String, String> map = new HashMap<>();
+                   map.put("username", entered_username);
+                   map.put("password", entered_password);
+
+                   return map;
                }
+
             };
 
             //added
             requestQueue.add(request);
 
-            new HandleReceivingConnection().execute();
         }
         else {
             Toast.makeText(this, "Please enter your username and password to log in", Toast.LENGTH_SHORT).show();
@@ -112,23 +112,20 @@ public class MainActivity extends AppCompatActivity {
         try {
 
             JSONObject jsonObject= new JSONObject(result);
-            String status = jsonObject.getString("status");
 
-            if(checkStatus(status) < 0)
+            if(checkStatus(jsonObject) < 0)
                 return;
 
-            JSONObject studentJSONObject = jsonObject.getJSONObject("value");
-
-            processStudentData(studentJSONObject);
+            processStudentData(jsonObject);
 
         } catch (JSONException e) {
             e.printStackTrace();
         }
     }
 
-    private int checkStatus(String status)
+    private int checkStatus(JSONObject result)
     {
-        if(status != null && status.equals("ok"))
+        if(result!= null && !result.has("ErrorType"))
         {
             Toast.makeText(MainActivity.this, "Login successful",Toast.LENGTH_SHORT).show();
             return 0;
@@ -144,74 +141,10 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, OverviewActivity.class);
 
         intent.putExtra("student",student.toString());
+        intent.putExtra("password",entered_password);
         startActivity(intent);
 //        finish();
 
-    }
-
-
-    public class HandleReceivingConnection extends AsyncTask<String, String, String>{
-
-        @Override
-        protected String doInBackground(String... params) {
-
-            try {
-
-                String urlString= "http://atsesandbox.getsandbox.com/students?username=" + entered_username + "&password=" + entered_password;
-                URL url = new URL(urlString);
-                connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("POST");
-                connection.setDoInput(true);
-                connection.setDoOutput(true);
-                connection.setUseCaches(false);
-                connection.setRequestProperty("Content-Type", "application/json");
-                connection.setRequestProperty("charset", "utf-8");
-
-
-                connection.connect();
-
-                InputStream stream = connection.getInputStream();
-
-                reader = new BufferedReader(new InputStreamReader(stream));
-                StringBuffer buffer = new StringBuffer();
-
-                String line = "";
-                while ((line = reader.readLine()) != null){
-                    buffer.append(line);
-                }
-
-
-                String result = buffer.toString();
-
-                return result;
-
-
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }  finally {
-                if(connection != null){
-                    connection.disconnect();
-                }
-                try {
-                    if(reader != null){
-                        reader.close();
-                    }
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-          return null;
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-
-            login(result);
-        }
     }
 
 }

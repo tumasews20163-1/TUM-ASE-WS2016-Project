@@ -52,7 +52,7 @@ public class OverviewActivity extends Activity {
     String fullNameToDisplay;
     String exerciseGroupToDisplay;
     String usernameToDisplay;
-    int bonus;
+    boolean bonus;
 
     ImageView qr_image;
 
@@ -79,31 +79,26 @@ public class OverviewActivity extends Activity {
             String student = intent.getStringExtra("student");
             JSONObject studentJSON = new JSONObject(student);
 
-            matnrToDisplay = studentJSON.getString("matrikelnum");
-            fullNameToDisplay = studentJSON.getString("firstname") + " " + studentJSON.getString("lastname");
+            matnrToDisplay = studentJSON.getString("matriculationNumber");
+            fullNameToDisplay = studentJSON.getString("firstName") + " " + studentJSON.getString("lastName");
             exerciseGroupToDisplay = studentJSON.getString("group");
             usernameToDisplay = studentJSON.getString("username");
-            bonus = studentJSON.getInt("bonus");
+            bonus = studentJSON.getBoolean("hasEarnedbonus");
 
             matnrView.setText(matnrToDisplay);
             fullNameView.setText(fullNameToDisplay);
             usernameView.setText(usernameToDisplay);
             exerciseGroup.setText(exerciseGroupToDisplay);
 
-            if(bonus == 1)
+            if(bonus == true)
             {
                 bonusView.setText("Yes");
             }
-            else if(bonus == 0)
-            {
+            else{
                 bonusView.setText("No");
             }
-            else
-            {
-                bonusView.setText("Error in database");
-            }
 
-            String qrCodeString = studentJSON.getString("qrcode");
+            String qrCodeString = studentJSON.getString("currentQR");
 
             MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
 
@@ -137,9 +132,9 @@ public class OverviewActivity extends Activity {
 
             String val = intent.getStringExtra("values");
             JSONObject obj = new JSONObject(val);
-            val = obj.getString("status");
+            //val = obj.getString("status");
 
-            if(val.equals("ok"))
+            if(obj.has("hasEarnedbonus") && (obj.getBoolean("hasEarnedbonus") == true))
             {
                 bonusView.setText("Yes");
                 this.stopService();
@@ -150,11 +145,11 @@ public class OverviewActivity extends Activity {
                 mBuilder.setContentText("You achieved your bonus!");
 
                 //TODO After closing the app, and clicking on notification, the overview activity appear... maybe just bug in emulator?
-                Intent launchIntent = getIntent().addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                PendingIntent contentIntent = PendingIntent.getActivity(this, 0, launchIntent, 0);
+                //Intent launchIntent = getIntent().addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+               // PendingIntent contentIntent = PendingIntent.getActivity(this, 0, launchIntent, 0);
 
 
-                mBuilder.setContentIntent(contentIntent);
+               // mBuilder.setContentIntent(contentIntent);
 
                 //Add notification
                 NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -172,6 +167,7 @@ public class OverviewActivity extends Activity {
     public void startService() {
         Intent t = new Intent(getBaseContext(), BroadcastService.class);
         t.putExtra("username",usernameToDisplay);
+        t.putExtra("password",OverviewActivity.this.getIntent().getStringExtra("password"));
         startService(t);
     }
 
