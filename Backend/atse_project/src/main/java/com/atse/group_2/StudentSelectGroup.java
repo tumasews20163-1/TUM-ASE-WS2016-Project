@@ -2,6 +2,7 @@ package com.atse.group_2;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -64,10 +65,12 @@ public class StudentSelectGroup extends HttpServlet {
 					  Group oldGroup = ObjectifyService.ofy().load().type(Group.class).id(oldGroupName).now();
 					  List<String> oldGroupParticipants = new ArrayList<String>(oldGroup.students);
 					  oldGroupParticipants.remove(username);
+					  oldGroup.students = new HashSet<String>(oldGroupParticipants);
 					  ObjectifyService.ofy().save().entity(oldGroup).now();  
 				  }
 				  
 				  participants.add(person.username);
+				  newGroup.students = new HashSet<String>(participants);
 				  ObjectifyService.ofy().save().entity(newGroup).now();
 				  person.group = newGroupName;
 				  ObjectifyService.ofy().save().entity(person).now();

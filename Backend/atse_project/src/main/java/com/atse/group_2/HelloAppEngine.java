@@ -68,14 +68,14 @@ public class HelloAppEngine extends HttpServlet {
 			}
 			
 			if (countPeople == 0) {
-				ObjectifyService.ofy().save().entity(new Person("tutor1", "1111", 1, "1")).now();
-				ObjectifyService.ofy().save().entity(new Person("tutor2", "1111", 1, "2")).now();
-				ObjectifyService.ofy().save().entity(new Person("tutor3", "1111", 1, "3")).now();
+				ObjectifyService.ofy().save().entity(new Person("tutor1", "1111", "123456", 1, "1")).now();
+				ObjectifyService.ofy().save().entity(new Person("tutor2", "1111", "987654", 1, "2")).now();
+				ObjectifyService.ofy().save().entity(new Person("tutor3", "1111", "23452345", 1, "3")).now();
 
 				// Set the last param to null to clear group associations
-				ObjectifyService.ofy().save().entity(new Person("student1", "1111", "F1rst", "Last", 0, "1")).now();
-				ObjectifyService.ofy().save().entity(new Person("student2", "1111", "First", "Last", 0, "1")).now();
-				ObjectifyService.ofy().save().entity(new Person("student3", "1111", "First", "Last", 0, "2")).now();
+				ObjectifyService.ofy().save().entity(new Person("egazetic", "1111", "Elma", "Gazetic", "12345", 0, "1")).now();
+				ObjectifyService.ofy().save().entity(new Person("stebo", "1111", "Stevica", "Bozhinoski", "54321", 0, "1")).now();
+				ObjectifyService.ofy().save().entity(new Person("student3", "1111", "First", "Last", "a1s2d3f4g5", 0, "2")).now();
 			}
 
 
