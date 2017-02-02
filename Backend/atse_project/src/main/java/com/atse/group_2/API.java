@@ -44,8 +44,10 @@ public class API extends HttpServlet{
 		String responseText = new APIError(666, "An unknown error occurred handling the request.").toJson();
 		
 		// If request contains a valid username/password combination, return string to be converted into QR code
-		String username = request.getParameter(Params.USERNAME.getValue());
-		String password = request.getParameter(Params.PASSWORD.getValue());
+		// String username = request.getParameter(Params.USERNAME.getValue());
+		String username = request.getHeader(Params.USERNAME.getValue());
+		// String password = request.getParameter(Params.PASSWORD.getValue());
+		String password = request.getHeader(Params.PASSWORD.getValue());
 		
 		if(username != null && password != null){			
 			// Try username/pw combination
@@ -88,7 +90,7 @@ public class API extends HttpServlet{
 				
 			} else {
 				// Username not found
-				responseText = new APIError(0, "Username not found").toJson();
+				responseText = new APIError(0, String.format("Username not found: %s", username)).toJson();
 			}			
 
 		} else {		
@@ -115,7 +117,7 @@ public class API extends HttpServlet{
 		String responseText;
 		
 		// Get the Student who owns the QR code
-		String challengeQR 		= request.getParameter(Params.CHALLENGE_QR.getValue());
+		String challengeQR 		= request.getHeader(Params.CHALLENGE_QR.getValue());
 		String studentUsername 	= challengeQR.split(":")[0];
 		Person student 			= ObjectifyService.ofy().load().type(Person.class).id(studentUsername).now();
 		
@@ -133,8 +135,8 @@ public class API extends HttpServlet{
 					
 					if(student.verifyQR(challengeQR)){
 						// QR matches, so mark student present/presented
-						String sessionID 			= request.getParameter(Params.SESSION.getValue());					
-						String participationString 	= request.getParameter(Params.PARTICIPATION_FLAG.getValue());
+						String sessionID 			= request.getHeader(Params.SESSION.getValue());					
+						String participationString 	= request.getHeader(Params.PARTICIPATION_FLAG.getValue());
 						
 						if (sessionID != null && participationString != null){
 							boolean participated = participationString.equalsIgnoreCase(Params.PARTICIPATION_TRUE.getValue());

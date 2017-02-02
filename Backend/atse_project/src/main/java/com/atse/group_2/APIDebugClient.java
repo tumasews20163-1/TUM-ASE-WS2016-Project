@@ -19,16 +19,16 @@ import com.google.gson.Gson;
 
 class APIDebugClient{	
 	// Remote url strings
-	// static String url  = "http://utility-node-147216.appspot.com//api/student";
-	// static String url2 = "http://utility-node-147216.appspot.com//api/tutor";
+	static String url  = "http://utility-node-147216.appspot.com/api/student";
+	static String url2 = "http://utility-node-147216.appspot.com/api/tutor";
 	
 	// Local url strings
-	static String url  = "http://localhost:8080/api/student";
-	static String url2 = "http://localhost:8080/api/tutor";
+	// static String url  = "http://localhost:8080/api/student";
+	// static String url2 = "http://localhost:8080/api/tutor";
 
 	
 	public static void main(String[] args) throws IOException{		               
-		String studentUsername = "student1";
+		String studentUsername = "egazetic";
 		String studentPassword = "1111";
 		
 		String tutorUsername = "tutor1";
@@ -109,15 +109,17 @@ class APIDebugClient{
 		
 		if(!params.isEmpty()){
 			// Take any params above and include them in the POST request
-			List<BasicNameValuePair> postParameters
-				= new ArrayList<BasicNameValuePair>();
+			// List<BasicNameValuePair> postParameters
+			// 	= new ArrayList<BasicNameValuePair>();
 			
 			for (String key : params.keySet()){
-				postParameters.add(new BasicNameValuePair(key, params.get(key)));
+				// postParameters.add(new BasicNameValuePair(key, params.get(key)));
+				post.addHeader(key, params.get(key));
 			}
 			
-			post.setEntity(new UrlEncodedFormEntity(postParameters));
-		}
+			// post.setEntity(new UrlEncodedFormEntity(postParameters));
+			
+		}		
 		
 		// Execute the request
 		CloseableHttpResponse response = (CloseableHttpResponse) client.execute(post);

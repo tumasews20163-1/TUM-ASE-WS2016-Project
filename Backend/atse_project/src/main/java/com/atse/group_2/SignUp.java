@@ -56,6 +56,11 @@ public class SignUp extends HttpServlet {
 						"</div>" +
 						"<br>" +
 						"<div class=\"form-group\">" +
+							"<label for=\"matriculation\">Matriculation Number:</label><input id=\"text\"" +
+								"name=\"matriculation\" type=\"text\">" +
+						"</div>" +
+						"<br>" +
+						"<div class=\"form-group\">" +
 							"<label for=\"password\">Password:</label><input id=\"password\"" +
 								"name=\"password\" type=\"password\">" +
 						"</div>" +
@@ -68,14 +73,15 @@ public class SignUp extends HttpServlet {
 	}
 	
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		String username 	= request.getParameter("username");
-		String password 	= request.getParameter("password");
-		String firstName 	= request.getParameter("firstname");
-		String lastName 	= request.getParameter("lastname");		
+		String username 		= request.getParameter("username");
+		String password 		= request.getParameter("password");
+		String firstName 		= request.getParameter("firstname");
+		String lastName 		= request.getParameter("lastname");		
+		String matriculation	= request.getParameter("matriculation");				
 		
 	    HttpSession session = request.getSession();
 		
-		if (username.trim().equals("") || password.trim().equals("") || firstName.trim().equals("") || lastName.trim().equals("")){
+		if (username.trim().equals("") || password.trim().equals("") || firstName.trim().equals("") || lastName.trim().equals("") || matriculation.trim().equals("")){
 			// Set a message
 			session.setAttribute("failureMessage", "Please complete all required fields.");
 
@@ -85,7 +91,7 @@ public class SignUp extends HttpServlet {
 		} else {
 			if (!usernameExists(username)){
 				// Register the user
-				registerNewUser(username, password, firstName, lastName);
+				registerNewUser(username, password, firstName, lastName, matriculation);
 				
 				// Set a success message
 			    session.setAttribute("successMessage", "Registration was successful! Try your new login below.");
@@ -110,9 +116,9 @@ public class SignUp extends HttpServlet {
 	}
 	
 	// Adds a new user to the Objectify store
-	private static void registerNewUser(String username, String password, String firstName, String lastName){
+	private static void registerNewUser(String username, String password, String firstName, String lastName, String matriculation){
 		ObjectifyService.ofy().save().entity(
-				new Person(username, password, firstName, lastName, Person.Roles.STUDENT.getValue(), null)
+				new Person(username, password, firstName, lastName, matriculation, Person.Roles.STUDENT.getValue(), null)
 				).now();
 	}	
 }

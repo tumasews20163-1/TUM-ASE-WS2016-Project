@@ -20,6 +20,7 @@ public class Person {
 	
 	String firstName;
 	String lastName;
+	String matriculationNumber;
 	
 	String group; 					// id of the group
 	int role; 						// 0 is a student 1 is a tutor
@@ -35,11 +36,12 @@ public class Person {
 		
 	}
 
-	public Person(String username, String password, String firstName, String lastName, int role, String group){
+	public Person(String username, String password, String firstName, String lastName, String matriculation, int role, String group){
 		this.username = username;
 		this.password = password;
 		this.firstName = firstName;
 		this.lastName = lastName;
+		this.matriculationNumber = matriculation;
 		this.role = role;
 		this.group= group;	
 		
@@ -53,8 +55,8 @@ public class Person {
 		this.newQR();
 	}
 	
-	public Person(String username, String password, int role, String group) {
-		this(username, password, "", "", role, group);
+	public Person(String username, String password, String matriculation, int role, String group) {
+		this(username, password, "", "", matriculation, role, group);
 	}
 	
 	
